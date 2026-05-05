@@ -16,3 +16,20 @@ flutter_module/.ios/
 # Generated
 **/*.g.dart
 **/*.freezed.dart
+
+# Xcode ユーザー固有設定
+**/xcuserdata/
+
+# CocoaPods（pod install で再生成可能）
+**/Pods/
+**/Podfile.lock
+
+# Android ローカル設定
+**/android/local.properties
+**/android/key.properties
+**/android/.gradle/
+
+# 環境変数・シークレット
+**/.env
+**/.env.*
+**/secrets.dart
