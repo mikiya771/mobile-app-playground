@@ -10,19 +10,17 @@
 - [x] Step 2: StatelessWidget / StatefulWidget の違いを体感する
 - [x] Step 3: レイアウトWidget（Column / Row / Container）を触る
 - [x] Step 4: モデルクラス Todo を作る
-- [ ] Step 5: ハードコードのリストを ListView で表示する
-- [ ] Step 6: 完了チェック・優先度バッジを作る
-- [ ] Step 7: StateProvider でフィルター状態を管理する（Riverpod）
-- [ ] Step 8: AsyncNotifier でTodoリストを管理する（Riverpod）
-- [ ] Step 9: sqfliteでCRUDを実装する
-- [ ] Step 10: 一覧 → 詳細WebView → 編集フォームを繋ぐ（go_router）
-- [ ] Step 11: AuthGuardを追加する
-- [ ] Step 12: JSONPlaceholderからTodoを取得・同期する（dio）
-- [ ] Step 13: webview_flutter でTodo詳細ページを表示する
-- [ ] Step 14: ホワイトリスト制御を実装する
-- [ ] Step 15: ログイン画面（WebView + JS Bridge）
-- [ ] Step 16: SecureStorage でトークン管理・AuthGuard
-- [ ] Step 17: OAuthフロー（ASWebAuthenticationSession）
+- [x] Step 5: インタラクションを追加する（トグル・フィルター）
+- [x] Step 6: タップ操作と状態フローを整理する
+- [ ] Step 7: sqflite で CRUD を実装する
+- [ ] Step 8: 一覧 → 詳細WebView → 編集フォームを繋ぐ（go_router）
+- [ ] Step 9: AuthGuard を追加する
+- [ ] Step 10: JSONPlaceholder から Todo を取得・同期する（dio）
+- [ ] Step 11: webview_flutter で Todo 詳細ページを表示する
+- [ ] Step 12: ホワイトリスト制御を実装する
+- [ ] Step 13: ログイン画面（WebView + JS Bridge）
+- [ ] Step 14: SecureStorage でトークン管理・AuthGuard
+- [ ] Step 15: OAuthフロー（ASWebAuthenticationSession）
 
 ---
 
@@ -337,6 +335,56 @@ ListView.separated(
 ```
 
 `ListView` に直接 `SizedBox` を並べるより、`separated` を使うとアイテムとアイテム間の余白を一か所で管理できる。
+
+### Step 5 & 6: インタラクションと状態フロー
+
+**StatefulWidget でページ状態を管理する**
+
+`TodoListPage` を `StatefulWidget` に変えて、`_todos` と `_filter` を State に持つ。
+
+```dart
+class _TodoListPageState extends State<TodoListPage> {
+  List<Todo> _todos = _dummyTodos;
+  TodoFilter _filter = TodoFilter.all;
+  ...
+}
+```
+
+`StatefulWidget` の `build()` は `State` クラスの中に書く。`StatefulWidget` クラス自体には `createState()` だけ置く。
+
+**Dart 3 の `switch` 式**
+
+```dart
+List<Todo> get _filteredTodos => switch (_filter) {
+  TodoFilter.all       => _todos,
+  TodoFilter.active    => _todos.where((t) => !t.isCompleted).toList(),
+  TodoFilter.completed => _todos.where((t) => t.isCompleted).toList(),
+};
+```
+
+`switch` が「式」として値を返せる（Dart 3 以降）。enum の全ケースを網羅しないとコンパイルエラーになるため、分岐漏れをコンパイル時に検出できる。
+
+**コールバックで状態変更を上に伝える**
+
+ウィジェット層は状態を持たず、タップされたら「誰かに伝える」だけ。
+
+```
+GestureDetector.onTap
+  → () => onToggle(todo.id)   // コールバックを呼ぶ
+    → _TodoListPageState._toggle(id)  // ここで setState
+      → _todos = _todos.map(...copyWith...).toList()
+```
+
+**`GestureDetector` でタップを検知する**
+
+```dart
+GestureDetector(
+  onTap: () => onToggle(todo.id),
+  child: Icon(...),
+)
+```
+
+`GestureDetector` は任意のウィジェットにタップ・スワイプ・ドラッグなどのジェスチャーを付与できる。`InkWell`（タップ時に波紋エフェクト付き）という代替もある。
 
 ---
 

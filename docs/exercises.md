@@ -88,58 +88,52 @@ TodoListPage（Scaffold）
 
 ---
 
-### Step 5: ListView を動的に（次のStep）
+### Step 5 & 6: インタラクションを追加する ✅
 
-**目標**: ダミーデータのリストを動的に管理できるよう StatefulWidget に移行する
+**やること**
 
----
-
-### Step 6: 完了チェック・優先度バッジを作る
-
-**目標**: 各 Todo アイテムに Checkbox と優先度バッジ（色付きチップ）を追加
-
----
-
-## Phase 3: 状態管理（Riverpod）
-
-### Step 7: StateProvider でフィルター状態を管理する
-
-### Step 8: AsyncNotifier でTodoリストを管理する
+1. チェックアイコンをタップ → 完了/未完了がトグルし取り消し線が出ることを確認
+2. フィルタータブをタップ → 「未完了」「完了」で絞り込まれることを確認
+3. `pages/todo_list_page.dart` の `_toggle` メソッドを読んで、`copyWith` でイミュータブルに更新していることを確認
+4. `_filteredTodos` の `switch` 式を読んで、全ケースを網羅しないとエラーになることを確認
+5. **追加課題**: フィルター「未完了」に切り替えた後、チェックをつけるとそのアイテムがリストから消えることを確認（フィルターが即時に反映される）
 
 ---
 
-## Phase 4: 永続化（sqflite）
+## Phase 3: 永続化（sqflite）
 
-### Step 9: sqfliteでCRUDを実装する
+### Step 7: sqflite で CRUD を実装する
 
----
-
-## Phase 5: ナビゲーション（go_router）
-
-### Step 10: 一覧 → 詳細WebView → 編集フォームを繋ぐ
-
-### Step 11: AuthGuardを追加する
+**目標**: `sqflite` を使って Todo をローカル DB に保存・読み込みする
 
 ---
 
-## Phase 6: API連携（dio）
+## Phase 4: ナビゲーション（go_router）
 
-### Step 12: JSONPlaceholderからTodoを取得・同期する
+### Step 8: 一覧 → 詳細WebView → 編集フォームを繋ぐ
 
----
-
-## Phase 7: WebView
-
-### Step 13: webview_flutter でTodo詳細ページを表示する
-
-### Step 14: ホワイトリスト制御を実装する
+### Step 9: AuthGuard を追加する
 
 ---
 
-## Phase 8: 認証
+## Phase 5: API連携（dio）
 
-### Step 15: ログイン画面（WebView + JS Bridge）
+### Step 10: JSONPlaceholder から Todo を取得・同期する
 
-### Step 16: SecureStorage でトークン管理・AuthGuard
+---
 
-### Step 17: OAuthフロー（ASWebAuthenticationSession）
+## Phase 6: WebView
+
+### Step 11: webview_flutter で Todo 詳細ページを表示する
+
+### Step 12: ホワイトリスト制御を実装する
+
+---
+
+## Phase 7: 認証
+
+### Step 13: ログイン画面（WebView + JS Bridge）
+
+### Step 14: SecureStorage でトークン管理・AuthGuard
+
+### Step 15: OAuthフロー（ASWebAuthenticationSession）
