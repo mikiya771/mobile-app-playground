@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/todo.dart';
 import '../widgets/todo_list.dart';
 
-// ダミーデータ（Step 8 で Riverpod の AsyncNotifier に置き換える）
 final _dummyTodos = [
   Todo(
     id: '1',
@@ -14,7 +13,7 @@ final _dummyTodos = [
   Todo(
     id: '2',
     title: 'Flutter を学ぶ',
-    description: 'Step 4: モデルクラスを作る',
+    description: 'Step 5: インタラクションを追加する',
     priority: TodoPriority.high,
     createdAt: DateTime(2025, 5, 2),
   ),
@@ -28,8 +27,34 @@ final _dummyTodos = [
   ),
 ];
 
-class TodoListPage extends StatelessWidget {
+class TodoListPage extends StatefulWidget {
   const TodoListPage({super.key});
+
+  @override
+  State<TodoListPage> createState() => _TodoListPageState();
+}
+
+class _TodoListPageState extends State<TodoListPage> {
+  List<Todo> _todos = _dummyTodos;
+  TodoFilter _filter = TodoFilter.all;
+
+  List<Todo> get _filteredTodos => switch (_filter) {
+    TodoFilter.all       => _todos,
+    TodoFilter.active    => _todos.where((t) => !t.isCompleted).toList(),
+    TodoFilter.completed => _todos.where((t) => t.isCompleted).toList(),
+  };
+
+  void _toggle(String id) {
+    setState(() {
+      _todos = _todos
+          .map((t) => t.id == id ? t.copyWith(isCompleted: !t.isCompleted) : t)
+          .toList();
+    });
+  }
+
+  void _onFilterChange(TodoFilter filter) {
+    setState(() => _filter = filter);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +63,12 @@ class TodoListPage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('TODO リスト'),
       ),
-      body: TodoList(todos: _dummyTodos),
+      body: TodoList(
+        todos: _filteredTodos,
+        selectedFilter: _filter,
+        onFilterChange: _onFilterChange,
+        onToggle: _toggle,
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         tooltip: '追加',

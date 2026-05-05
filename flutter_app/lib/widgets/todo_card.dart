@@ -3,9 +3,10 @@ import '../models/todo.dart';
 import 'priority_badge.dart';
 
 class TodoCard extends StatelessWidget {
-  const TodoCard({super.key, required this.todo});
+  const TodoCard({super.key, required this.todo, required this.onToggle});
 
   final Todo todo;
+  final void Function(String id) onToggle;
 
   @override
   Widget build(BuildContext context) {
@@ -14,13 +15,16 @@ class TodoCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Row(
           children: [
-            Icon(
-              todo.isCompleted
-                  ? Icons.check_box
-                  : Icons.check_box_outline_blank,
-              color: todo.isCompleted
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.outline,
+            GestureDetector(
+              onTap: () => onToggle(todo.id),
+              child: Icon(
+                todo.isCompleted
+                    ? Icons.check_box
+                    : Icons.check_box_outline_blank,
+                color: todo.isCompleted
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.outline,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(

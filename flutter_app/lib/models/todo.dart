@@ -1,5 +1,7 @@
 enum TodoPriority { low, medium, high }
 
+enum TodoFilter { all, active, completed }
+
 class Todo {
   const Todo({
     required this.id,
