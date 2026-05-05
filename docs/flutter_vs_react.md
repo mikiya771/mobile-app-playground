@@ -39,6 +39,13 @@ class CounterDisplay extends StatelessWidget {
 
 ## 2. 状態管理の基本
 
+### 状態の種類と置き場所
+
+| 状態の種類 | 例 | 置き場所 |
+|---|---|---|
+| UIローカル状態 | ドロップダウン開閉・アニメーション | ウィジェット自身（`StatefulWidget`） |
+| データ・ビジネス状態 | Todoリスト・フィルター選択 | ページ層 → 引数で流す |
+
 ### ローカル状態
 
 | React | Flutter |
@@ -69,9 +76,9 @@ class _CounterState extends State<Counter> {
 }
 ```
 
-### State Hoisting（状態の引き上げ）
+### State Hoisting（状態の引き上げ）とコールバック
 
-React でよく使う「ページで state を持って、下は stateless に」というパターンは Flutter でも有効で推奨される。
+データ・ビジネス状態はページ層に置き、引数で下に流す。イベントはコールバックで上に返す。
 
 ```
 React:                          Flutter:
@@ -80,6 +87,35 @@ Page (useState)                 Page (StatefulWidget / setState)
   ├── DisplayA (props)            ├── DisplayA (StatelessWidget / 引数)
   ├── DisplayB (props)            ├── DisplayB (StatelessWidget / 引数)
   └── DisplayC (props)            └── DisplayC (StatelessWidget / 引数)
+```
+
+```dart
+// ページ層が状態を持つ
+class _TodoListPageState extends State<TodoListPage> {
+  List<Todo> _todos = _dummyTodos;
+
+  void _toggle(String id) => setState(() {
+    _todos = _todos.map((t) =>
+      t.id == id ? t.copyWith(isCompleted: !t.isCompleted) : t
+    ).toList();
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TodoList(
+      todos: _todos,
+      onToggle: _toggle,  // コールバックで渡す
+    );
+  }
+}
+
+// ウィジェット層は引数だけ見る
+class TodoList extends StatelessWidget {
+  const TodoList({required this.todos, required this.onToggle});
+  final List<Todo> todos;
+  final void Function(String id) onToggle;
+  ...
+}
 ```
 
 ---
@@ -142,130 +178,32 @@ const CounterLabel(text: '固定テキスト'),
 
 ### useMemo / useCallback → Flutter では基本不要
 
-Dart のオブジェクト生成は軽いため、React のような細かいメモ化は通常不要。重い計算が必要な場合は後述の Riverpod で対処する。
+Dart のオブジェクト生成は軽いため、React のような細かいメモ化は通常不要。
 
 ---
 
-## 5. setState の粒度問題
+## 5. setState の粒度
 
 ```dart
-// ページ全体が setState すると、関係ないウィジェットも build() が走る
+// ページ全体が setState すると、ツリー内の全 build() が再実行される
 build() {
   return Column(children: [
-    HeavyListWidget(),      // ← counter と無関係なのに再実行される
+    HeavyListWidget(),
     CounterDisplay(count: _counter),
   ]);
 }
 ```
 
-React なら `React.memo` や `useMemo` で対処するところ。Flutter の答えは **Riverpod の `Consumer`**（Step 7 で学ぶ）。
-
-```dart
-// Consumer で囲んだ部分だけ再描画される
-Column(children: [
-  HeavyListWidget(),       // ← counter が変わっても再実行されない
-  Consumer(
-    builder: (context, ref, child) {
-      final count = ref.watch(counterProvider);
-      return CounterDisplay(count: count);
-    },
-  ),
-])
-```
+`HeavyListWidget` が `const` でない場合、`_counter` に無関係でも `build()` が走る。
+対策は `const` をつけること、またはウィジェットを細かく分割して `const` を使いやすくすること。
 
 ---
 
-## 6. グローバル状態管理
+## 6. 非同期データの取得
 
 | React | Flutter |
 |---|---|
-| Context + useReducer | Riverpod（`Notifier` / `AsyncNotifier`） |
-| Redux / Zustand | Riverpod |
-| React Query（サーバー状態） | Riverpod の `AsyncNotifier` + dio |
-
-### Context vs Riverpod
-
-```jsx
-// React Context
-const CounterContext = createContext(0);
-
-function App() {
-  const [count, setCount] = useState(0);
-  return (
-    <CounterContext.Provider value={{ count, setCount }}>
-      <DeepChild />
-    </CounterContext.Provider>
-  );
-}
-
-function DeepChild() {
-  const { count } = useContext(CounterContext);
-  return <Text>{count}</Text>;
-}
-```
-
-```dart
-// Riverpod
-final counterProvider = StateProvider<int>((ref) => 0);
-
-class DeepChild extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final count = ref.watch(counterProvider); // プロバイダーを直接参照
-    return Text('$count');
-  }
-}
-```
-
-Riverpod の利点：
-- Provider の定義がグローバルスコープにあり、どこからでも `ref.watch()` で参照できる
-- Context を props drilling する必要がない
-- 依存関係（どの Provider が何を参照しているか）が静的に解析できる
-
-### このプロジェクトでの方針：prop drilling を基本とする
-
-Riverpod は導入せず、ページ層の `StatefulWidget` + `setState` で状態を管理する。
-データは引数で下に流し、イベントはコールバックで上に返す。
-
-```dart
-// ✅ ページ層が状態を持つ
-class _TodoListPageState extends State<TodoListPage> {
-  List<Todo> _todos = _dummyTodos;
-
-  void _toggle(String id) => setState(() {
-    _todos = _todos.map((t) =>
-      t.id == id ? t.copyWith(isCompleted: !t.isCompleted) : t
-    ).toList();
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TodoList(
-      todos: _todos,
-      onToggle: _toggle,   // コールバックで渡す
-    );
-  }
-}
-
-// ✅ ウィジェット層は引数だけ見る
-class TodoList extends StatelessWidget {
-  const TodoList({required this.todos, required this.onToggle});
-  final List<Todo> todos;
-  final void Function(String id) onToggle;
-  ...
-}
-```
-
-React の「ページで useState して、子は props だけ」と同じ発想。
-
----
-
-## 7. 非同期データの取得
-
-| React | Flutter |
-|---|---|
-| `useEffect` + `useState` | `FutureBuilder` or Riverpod の `AsyncNotifier` |
-| React Query の `useQuery` | Riverpod の `AsyncNotifier` |
+| `useEffect` + `useState` | `FutureBuilder` |
 
 ```jsx
 // React
@@ -286,32 +224,22 @@ function TodoList() {
 ```
 
 ```dart
-// Flutter + Riverpod（Step 8 で実装）
-class TodoListNotifier extends AsyncNotifier<List<Todo>> {
-  @override
-  Future<List<Todo>> build() async {
-    return await _repository.fetchAll(); // loading/data/error を自動管理
-  }
-}
-
-class TodoList extends ConsumerWidget {
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final todos = ref.watch(todoListProvider);
-    return todos.when(
-      loading: () => const CircularProgressIndicator(),
-      error: (e, _) => Text('エラー: $e'),
-      data: (list) => ListView(children: list.map((t) => TodoItem(todo: t)).toList()),
-    );
-  }
-}
+// Flutter: FutureBuilder
+FutureBuilder<List<Todo>>(
+  future: fetchTodos(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState != ConnectionState.done) {
+      return const CircularProgressIndicator();
+    }
+    if (snapshot.hasError) return Text('エラー: ${snapshot.error}');
+    return TodoList(todos: snapshot.data!);
+  },
+)
 ```
-
-`AsyncNotifier` は React Query の `useQuery` に近い。loading / error / data の3状態を `AsyncValue` として自動管理する。
 
 ---
 
-## 8. ライフサイクル
+## 7. ライフサイクル
 
 | React | Flutter（State クラス） |
 |---|---|
@@ -338,7 +266,7 @@ class _MyState extends State<MyWidget> {
 
 ---
 
-## 9. ナビゲーション
+## 8. ナビゲーション
 
 | React（React Router） | Flutter（go_router） |
 |---|---|
@@ -355,5 +283,4 @@ class _MyState extends State<MyWidget> {
 2. **StatelessWidget = props だけ受け取る純粋コンポーネント**。React.memo より強い `const` で最適化
 3. **StatefulWidget = useState を持つコンポーネント**。ただし Widget と State の2クラスに分かれる
 4. **Widget の再生成は軽い**。React の仮想DOM と同様、実際の描画は差分だけ
-5. **Riverpod = Context + React Query の代替**。Step 7–8 で導入する
-6. **re-render の粒度は Riverpod の Consumer で制御**。React.memo の代わり
+5. **状態はページ層に置いて引数で流す**。UIローカル状態だけウィジェット自身が持つ
