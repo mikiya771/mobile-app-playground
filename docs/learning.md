@@ -8,8 +8,8 @@
 
 - [x] Step 1: main.dart を読んでWidgetツリーを理解する
 - [x] Step 2: StatelessWidget / StatefulWidget の違いを体感する
-- [ ] Step 3: レイアウトWidget（Column / Row / Container）を触る
-- [ ] Step 4: モデルクラス Todo を作る
+- [x] Step 3: レイアウトWidget（Column / Row / Container）を触る
+- [x] Step 4: モデルクラス Todo を作る
 - [ ] Step 5: ハードコードのリストを ListView で表示する
 - [ ] Step 6: 完了チェック・優先度バッジを作る
 - [ ] Step 7: StateProvider でフィルター状態を管理する（Riverpod）
@@ -135,6 +135,164 @@ State は Widget とは別のオブジェクトとして生き続けるので、
 | Hot Restart（`R`） | アプリを再起動、状態リセット | 初期化処理を変えたとき |
 
 IntelliJ では Cmd+S（ファイル保存）で自動 Hot Reload。
+
+---
+
+### Step 3: レイアウトWidget
+
+Flutter のレイアウトは「箱の入れ子」で考える。CSSのFlexboxに近い。
+
+**主要レイアウトウィジェット一覧**
+
+| Widget | 役割 | CSS的なアナロジー |
+|---|---|---|
+| `Column` | 子を縦に並べる | `flex-direction: column` |
+| `Row` | 子を横に並べる | `flex-direction: row` |
+| `Expanded` | Column/Row の余ったスペースを占有する | `flex: 1` |
+| `Container` | サイズ・色・余白・角丸を一括指定できる箱 | `div` + style |
+| `Padding` | 内側に余白を作る | `padding` |
+| `SizedBox` | 固定サイズの空白 | `margin` / 固定サイズの `div` |
+| `Card` | 影付きの角丸カード | `box-shadow` + `border-radius` |
+
+---
+
+**Column / Row の軸の概念**
+
+```
+Column（縦に並ぶ）       Row（横に並ぶ）
+
+  mainAxis = 縦           mainAxis = 横
+  crossAxis = 横          crossAxis = 縦
+
+mainAxisAlignment: center → 縦方向に中央寄せ
+crossAxisAlignment: center → 横方向に中央寄せ
+```
+
+```dart
+Column(
+  mainAxisAlignment: MainAxisAlignment.center,   // 縦: 中央
+  crossAxisAlignment: CrossAxisAlignment.start,  // 横: 左寄せ
+  children: [...],
+)
+```
+
+---
+
+**Expanded の使いどころ**
+
+`Expanded` なしだと、Column の中の ListView がスクロール可能な高さを要求して無限大になりエラーになる。
+`Expanded` で包むと「残りスペースを全部使え」という制約が生まれ解決する。
+
+```dart
+Column(
+  children: [
+    FilterTabBar(),       // 固定の高さ
+    Expanded(             // ← 残りを全部使う
+      child: ListView(...)
+    ),
+  ],
+)
+```
+
+React/CSS で言うと「親が `display: flex; flex-direction: column` で子に `flex: 1`」と同じ。
+
+---
+
+**Container vs Padding の使い分け**
+
+```dart
+// Padding: 余白だけつけたいとき（意図が明確）
+Padding(
+  padding: EdgeInsets.all(16),
+  child: Text('hello'),
+)
+
+// Container: 色・サイズ・角丸なども一緒に指定したいとき
+Container(
+  padding: EdgeInsets.all(16),
+  decoration: BoxDecoration(
+    color: Colors.blue,
+    borderRadius: BorderRadius.circular(8),
+  ),
+  child: Text('hello'),
+)
+```
+
+---
+
+**Step 3 で作ったウィジェット構成**
+
+```
+TodoListPage（Scaffold）
+  ├── AppBar
+  ├── body: TodoList
+  │     ├── FilterTabBar（Row + Expanded × 3 でタブを均等分割）
+  │     └── Expanded
+  │           └── ListView
+  │                 ├── TodoCard（Row: チェックアイコン + Expanded(タイトル) + バッジ）
+  │                 ├── TodoCard
+  │                 └── TodoCard
+  └── FloatingActionButton
+```
+
+### Step 4: モデルクラス
+
+**モデルはFlutterに依存しない純粋なDartクラスにする**
+
+`Color` や `Widget` をモデルに持たせると、テストや他プラットフォームへの移植が難しくなる。
+表示上の色・ラベルはUIレイヤー（Widget）で変換する。
+
+```
+lib/
+  models/
+    todo.dart    ← 純粋Dartクラス。import は dart:core のみ
+  main.dart      ← Flutter依存。モデルの変換（color/label）はここで行う
+```
+
+**TodoPriority enum**
+
+```dart
+enum TodoPriority { low, medium, high }
+```
+
+Dart の enum は Java/Swift と同様に型安全。文字列ではなく enum を使うことで、タイポや未網羅のケースをコンパイル時に検出できる。
+
+**immutable（イミュータブル）な設計**
+
+Flutter では状態をイミュータブルにすることが推奨される。`Todo` を変更するのではなく、`copyWith()` で新しいインスタンスを作る。
+
+```dart
+// 完了状態を反転する
+final updated = todo.copyWith(isCompleted: !todo.isCompleted);
+```
+
+React の「state を直接変更せず新しいオブジェクトを返す」のと同じ考え方。
+
+**`if` を children の中に書ける**
+
+```dart
+Column(
+  children: [
+    Text(todo.title),
+    if (todo.description.isNotEmpty)   // ← description があるときだけ表示
+      Text(todo.description),
+  ],
+)
+```
+
+Dart のコレクションリテラルには `if` / `for` が書ける。JSXの `{condition && <Element />}` に相当する。
+
+**ListView.separated で区切り線/余白を管理する**
+
+```dart
+ListView.separated(
+  itemCount: todos.length,
+  separatorBuilder: (_, __) => const SizedBox(height: 8),
+  itemBuilder: (context, index) => TodoCard(todo: todos[index]),
+)
+```
+
+`ListView` に直接 `SizedBox` を並べるより、`separated` を使うとアイテムとアイテム間の余白を一か所で管理できる。
 
 ---
 

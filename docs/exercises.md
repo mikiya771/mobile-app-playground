@@ -48,44 +48,49 @@ MyHomePage（StatefulWidget）
 
 ---
 
-### Step 3: レイアウトWidget を触る（次のStep）
+### Step 3: レイアウトWidget を触る ✅
 
-**目標**: Column / Row / Container / Padding / Expanded を使って TODO一覧の「骨格」を作る
+**現在の main.dart の構成**
 
-**やること（予定）**
+```
+TodoListPage（Scaffold）
+  ├── AppBar
+  ├── body: TodoList
+  │     ├── FilterTabBar（Row + Expanded × 3）
+  │     └── Expanded → ListView
+  │           ├── TodoCard × 3（Row: アイコン + Expanded(タイトル) + PriorityBadge）
+  └── FloatingActionButton
+```
 
-1. `Scaffold` の `body` を Column → Row → Container に変えて違いを確認
-2. `mainAxisAlignment` / `crossAxisAlignment` の効果を確認
-3. `Expanded` で残りスペースを埋める
-4. `Padding` / `SizedBox` でスペースを作る
-5. TODO一覧のダミーカード1枚を作る（Card + ListTile）
+**やること**
+
+1. シミュレーターで TODO リストのダミー画面が表示されることを確認
+2. `FilterTabBar` の `Expanded` を外してみる → タブが横幅を取らなくなることを確認
+3. `TodoList` の `Expanded` を外してみる → `ListView` がエラーになることを確認（Columnの中でListViewは高さが無限大になるため）
+4. `TodoCard` の `mainAxisAlignment` や `crossAxisAlignment` を変えてみる
+5. **追加課題**: `TodoCard` に `description` フィールドを追加して、タイトルの下に小さいテキストで表示する（Column を入れ子にする）
 
 ---
 
 ## Phase 2: TODO一覧画面（UIだけ）
 
-### Step 4: モデルクラス Todo を作る
+### Step 4: モデルクラス Todo を作る ✅
 
-**目標**: `lib/models/todo.dart` を作成
+**作成したファイル**: `lib/models/todo.dart`
 
-```dart
-enum TodoPriority { low, medium, high }
+**やること**
 
-class Todo {
-  final String id;
-  final String title;
-  final String description;
-  final bool isCompleted;
-  final TodoPriority priority;
-  final DateTime createdAt;
-}
-```
+1. `lib/models/todo.dart` を開いて `Todo` クラスと `TodoPriority` enum を読む
+2. `main.dart` の `_dummyTodos` を見て、モデルがどう使われているか確認する
+3. `PriorityBadge` の `_labels` / `_colors` マップを見て、色のマッピングがUIレイヤーにあることを確認
+4. **追加課題**: `_dummyTodos` に自分でTodoを1件追加してみる
+5. **追加課題**: `copyWith()` を使って、既存の Todo の `isCompleted` を反転した新しい Todo を作ってみる（`debugPrint` で確認）
 
 ---
 
-### Step 5: ハードコードのリストを ListView で表示する
+### Step 5: ListView を動的に（次のStep）
 
-**目標**: ダミーデータのリストを `ListView.builder` で表示
+**目標**: ダミーデータのリストを動的に管理できるよう StatefulWidget に移行する
 
 ---
 
