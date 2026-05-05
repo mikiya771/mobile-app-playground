@@ -13,6 +13,12 @@
 flutter_module/.android/
 flutter_module/.ios/
 
+# 非モバイルプラットフォーム（flutter pub get で再生成される）
+**/linux/
+**/windows/
+**/macos/
+**/web/
+
 # Generated
 **/*.g.dart
 **/*.freezed.dart
