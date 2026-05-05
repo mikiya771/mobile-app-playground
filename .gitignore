@@ -1,0 +1,18 @@
+# Flutter
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+**/pubspec.lock
+**/.idea/
+**/*.iml
+**/.DS_Store
+
+# Flutter module hidden iOS/Android
+flutter_module/.android/
+flutter_module/.ios/
+
+# Generated
+**/*.g.dart
+**/*.freezed.dart
