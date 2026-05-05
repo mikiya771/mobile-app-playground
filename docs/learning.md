@@ -42,22 +42,30 @@
 
 ### データフローの原則
 
-- **状態はページ層で持つ**（`StatefulWidget` + `setState`）
+状態を2種類に分けて管理する。
+
+| 状態の種類 | 例 | 置き場所 |
+|---|---|---|
+| UIローカル状態 | ドロップダウンの開閉・アコーディオン・アニメーション | ウィジェット自身（`StatefulWidget`） |
+| データ・ビジネス状態 | Todoリスト・フィルター選択・認証 | ページ層 → 引数で流す |
+
 - **データは引数で下に流す**（prop drilling）
 - **イベントはコールバックで上に返す**
 - **Riverpod は導入しない**（非同期・横断的な状態が genuinely 必要になった時点で判断する）
 
 ```
-TodoListPage（StatefulWidget・状態を持つ）
-  ├── _todos, _filter など
+TodoListPage（StatefulWidget）
+  ├── _todos, _filter          ← データ・ビジネス状態
   └── TodoList(
-        todos: todos,                        // データ: 引数で渡す
-        onToggle: (id) => setState(...),     // イベント: コールバックで返す
+        todos: todos,
+        onToggle: _toggle,
       )
         └── TodoCard(
               todo: todo,
               onToggle: onToggle,
             )
+              └── _ExpandedDescription（StatefulWidget）
+                    └── _isExpanded  ← UIローカル状態（ウィジェットが持つ）
 ```
 
 ---
