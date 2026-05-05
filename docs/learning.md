@@ -26,6 +26,42 @@
 
 ---
 
+## アーキテクチャ方針
+
+### context の使用ルール
+
+| アクセス方法 | ウィジェット層 | ページ層 |
+|---|---|---|
+| `Theme.of(context)` | ✅ 許容 | ✅ 許容 |
+| `MediaQuery.of(context)` | ❌ 引数で渡す | ✅ 許容 |
+| `Navigator` / `context.go()` | ❌ コールバックで渡す | ✅ 許容 |
+| `ref.watch()` (Riverpod) | ❌ | ✅ 許容 |
+| `ScaffoldMessenger.of(context)` | ❌ | ✅ 許容 |
+
+**理由**: ウィジェット層が `context` を通じて上位に依存すると、ウィジェットの置き場所が制約される。`Theme.of(context)` はFlutterのレンダリング基盤と不可分なので例外とする。
+
+### データフローの原則
+
+- **状態はページ層で持つ**（`StatefulWidget` + `setState`）
+- **データは引数で下に流す**（prop drilling）
+- **イベントはコールバックで上に返す**
+- **Riverpod は導入しない**（非同期・横断的な状態が genuinely 必要になった時点で判断する）
+
+```
+TodoListPage（StatefulWidget・状態を持つ）
+  ├── _todos, _filter など
+  └── TodoList(
+        todos: todos,                        // データ: 引数で渡す
+        onToggle: (id) => setState(...),     // イベント: コールバックで返す
+      )
+        └── TodoCard(
+              todo: todo,
+              onToggle: onToggle,
+            )
+```
+
+---
+
 ## Phase 1: Flutterの基礎
 
 ### Step 1: Widgetツリーとは何か

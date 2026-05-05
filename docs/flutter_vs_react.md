@@ -222,6 +222,42 @@ Riverpod の利点：
 - Context を props drilling する必要がない
 - 依存関係（どの Provider が何を参照しているか）が静的に解析できる
 
+### このプロジェクトでの方針：prop drilling を基本とする
+
+Riverpod は導入せず、ページ層の `StatefulWidget` + `setState` で状態を管理する。
+データは引数で下に流し、イベントはコールバックで上に返す。
+
+```dart
+// ✅ ページ層が状態を持つ
+class _TodoListPageState extends State<TodoListPage> {
+  List<Todo> _todos = _dummyTodos;
+
+  void _toggle(String id) => setState(() {
+    _todos = _todos.map((t) =>
+      t.id == id ? t.copyWith(isCompleted: !t.isCompleted) : t
+    ).toList();
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TodoList(
+      todos: _todos,
+      onToggle: _toggle,   // コールバックで渡す
+    );
+  }
+}
+
+// ✅ ウィジェット層は引数だけ見る
+class TodoList extends StatelessWidget {
+  const TodoList({required this.todos, required this.onToggle});
+  final List<Todo> todos;
+  final void Function(String id) onToggle;
+  ...
+}
+```
+
+React の「ページで useState して、子は props だけ」と同じ発想。
+
 ---
 
 ## 7. 非同期データの取得
