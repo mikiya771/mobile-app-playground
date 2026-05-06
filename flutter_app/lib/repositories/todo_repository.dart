@@ -1,11 +1,9 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import '../models/todo.dart';
+import 'todo_repository_interface.dart';
 
-class TodoRepository {
-  TodoRepository._();
-  static final TodoRepository instance = TodoRepository._();
-
+class TodoRepository implements TodoRepositoryInterface {
   Database? _db;
 
   Future<Database> get _database async {
@@ -31,30 +29,33 @@ class TodoRepository {
     );
   }
 
+  @override
   Future<List<Todo>> findAll() async {
     final db = await _database;
     final rows = await db.query('todos', orderBy: 'createdAt ASC');
     return rows.map(_fromRow).toList();
   }
 
+  @override
   Future<void> insert(Todo todo) async {
     final db = await _database;
     await db.insert('todos', _toRow(todo),
         conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
+  @override
   Future<void> update(Todo todo) async {
     final db = await _database;
     await db.update('todos', _toRow(todo),
         where: 'id = ?', whereArgs: [todo.id]);
   }
 
+  @override
   Future<void> delete(String id) async {
     final db = await _database;
     await db.delete('todos', where: 'id = ?', whereArgs: [id]);
   }
 
-  // ── 変換ヘルパー ────────────────────────────────────────────────────────
   static Todo _fromRow(Map<String, Object?> row) => Todo(
         id: row['id'] as String,
         title: row['title'] as String,

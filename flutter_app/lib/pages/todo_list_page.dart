@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import '../models/todo.dart';
-import '../repositories/todo_repository.dart';
+import '../providers/todo_repository_provider.dart';
+import '../repositories/todo_repository_interface.dart';
 import '../widgets/todo_list.dart';
 
 const _uuid = Uuid();
 
-class TodoListPage extends StatefulWidget {
+class TodoListPage extends ConsumerStatefulWidget {
   const TodoListPage({super.key});
 
   @override
-  State<TodoListPage> createState() => _TodoListPageState();
+  ConsumerState<TodoListPage> createState() => _TodoListPageState();
 }
 
-class _TodoListPageState extends State<TodoListPage> {
-  final _repo = TodoRepository.instance;
+class _TodoListPageState extends ConsumerState<TodoListPage> {
+  late final TodoRepositoryInterface _repo;
   List<Todo> _todos = [];
   TodoFilter _filter = TodoFilter.all;
   bool _loading = true;
@@ -28,6 +30,7 @@ class _TodoListPageState extends State<TodoListPage> {
   @override
   void initState() {
     super.initState();
+    _repo = ref.read(todoRepositoryProvider);
     _load();
   }
 
