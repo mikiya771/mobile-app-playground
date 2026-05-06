@@ -36,15 +36,18 @@
     button {
       width: 100%;
       padding: 0.75rem;
-      background: #1976d2;
-      color: white;
       border: none;
       border-radius: 6px;
       font-size: 1rem;
       cursor: pointer;
+      margin-bottom: 0.75rem;
     }
-    button:active { background: #1565c0; }
-    #error { color: #c62828; font-size: 0.85rem; margin-top: 0.5rem; min-height: 1.2em; }
+    .btn-primary { background: #1976d2; color: white; }
+    .btn-primary:active { background: #1565c0; }
+    .btn-oauth { background: white; color: #444; border: 1px solid #ddd; }
+    .btn-oauth:active { background: #f5f5f5; }
+    .divider { text-align: center; color: #aaa; font-size: 0.85rem; margin: 0.5rem 0 1rem; }
+    #error { color: #c62828; font-size: 0.85rem; margin-top: 0.25rem; min-height: 1.2em; }
   </style>
 </head>
 <body>
@@ -54,8 +57,10 @@
     <input id="username" type="text" placeholder="user" autocomplete="username" />
     <label for="password">パスワード</label>
     <input id="password" type="password" placeholder="password" autocomplete="current-password" />
-    <button onclick="handleLogin()">ログイン</button>
+    <button class="btn-primary" onclick="handleLogin()">ログイン</button>
     <div id="error"></div>
+    <div class="divider">または</div>
+    <button class="btn-oauth" onclick="handleOAuth()">OAuth でログイン（モック）</button>
   </div>
 
   <script>
@@ -68,20 +73,22 @@
         return;
       }
 
-      // ダミー認証（user / password で成功）
       if (username === 'user' && password === 'password') {
         const token = 'dummy-token-' + Date.now();
-        FlutterAuth.postMessage(JSON.stringify({ token: token }));
+        FlutterAuth.postMessage(JSON.stringify({ type: 'login', token: token }));
       } else {
         showError('ユーザー名またはパスワードが違います');
       }
+    }
+
+    function handleOAuth() {
+      FlutterAuth.postMessage(JSON.stringify({ type: 'oauth' }));
     }
 
     function showError(msg) {
       document.getElementById('error').textContent = msg;
     }
 
-    // Enterキーでログイン
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') handleLogin();
     });

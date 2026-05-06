@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OAuth 認可</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f5f5f5;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    }
+    h1 { font-size: 1.25rem; margin-bottom: 0.5rem; color: #333; }
+    .app-name { font-weight: bold; color: #1976d2; }
+    ul { margin: 1rem 0 1.5rem 1.25rem; color: #555; font-size: 0.95rem; }
+    li { margin-bottom: 0.4rem; }
+    .actions { display: flex; gap: 0.75rem; }
+    button {
+      flex: 1;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .btn-approve { background: #1976d2; color: white; }
+    .btn-approve:active { background: #1565c0; }
+    .btn-deny { background: #f5f5f5; color: #444; border: 1px solid #ddd; }
+    .btn-deny:active { background: #eee; }
+    .note { font-size: 0.75rem; color: #aaa; margin-top: 1rem; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1><span class="app-name">Todo App</span> がアクセスを要求しています</h1>
+    <ul>
+      <li>プロフィール情報の読み取り</li>
+      <li>Todo リストの管理</li>
+    </ul>
+    <div class="actions">
+      <button class="btn-deny" onclick="deny()">拒否</button>
+      <button class="btn-approve" onclick="approve()">承認</button>
+    </div>
+    <p class="note">※ これはモック OAuth 画面です</p>
+  </div>
+
+  <script>
+    function approve() {
+      const code = 'mock-code-' + Date.now();
+      window.location.href = 'flutterapp://callback?code=' + code;
+    }
+    function deny() {
+      window.location.href = 'flutterapp://callback?error=access_denied';
+    }
+  </script>
+</body>
+</html>

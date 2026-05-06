@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../auth_provider.dart';
 import '../../../config/web_view_config.dart';
@@ -33,11 +34,29 @@ class _LoginWebViewPageState extends ConsumerState<LoginWebViewPage> {
   void _onAuthMessage(JavaScriptMessage message) {
     try {
       final data = jsonDecode(message.message) as Map<String, dynamic>;
-      final token = data['token'] as String?;
-      if (token == null || token.isEmpty) return;
-      ref.read(authProvider.notifier).login();
+      final type = data['type'] as String? ?? 'login';
+      if (type == 'oauth') {
+        _startOAuthFlow();
+      } else {
+        final token = data['token'] as String? ?? '';
+        if (token.isEmpty) return;
+        ref.read(authProvider.notifier).login(token: token);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _startOAuthFlow() async {
+    try {
+      final result = await FlutterWebAuth2.authenticate(
+        url: 'http://localhost:8080/oauth/authorize',
+        callbackUrlScheme: 'flutterapp',
+      );
+      if (!mounted) return;
+      final code = Uri.parse(result).queryParameters['code'];
+      if (code == null || code.isEmpty) return;
+      await ref.read(authProvider.notifier).login(token: 'oauth-$code');
     } catch (_) {
-      // 不正なメッセージは無視
+      // ユーザーキャンセルまたはエラー
     }
   }
 

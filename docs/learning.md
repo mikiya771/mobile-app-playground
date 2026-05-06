@@ -19,8 +19,8 @@
 - [x] Step 11: webview_flutter で Todo 詳細ページを表示する
 - [x] Step 12: ホワイトリスト制御を実装する
 - [x] Step 13: ログイン画面（WebView + JS Bridge）
-- [ ] Step 14: SecureStorage でトークン管理・AuthGuard
-- [ ] Step 15: OAuthフロー（ASWebAuthenticationSession）
+- [x] Step 14: SecureStorage でトークン管理・AuthGuard
+- [x] Step 15: OAuthフロー（ASWebAuthenticationSession）
 
 ---
 
@@ -1388,3 +1388,163 @@ auth_provider.dart
 - 起動: IntelliJから（File → Invalidate Caches 後に安定）
 - Hot Reload: IntelliJ のファイル保存（Cmd+S）で自動反映
 - エラー「Entrypoint isn't within the current project」→ File → Invalidate Caches → Invalidate and Restart で解消
+
+### Step 14: SecureStorage でトークン管理
+
+#### SharedPreferences と SecureStorage の違い
+
+| | SharedPreferences | flutter_secure_storage |
+|---|---|---|
+| 保存場所 | UserDefaults (iOS) / SharedPreferences (Android) | Keychain (iOS) / Keystore (Android) |
+| 暗号化 | なし | OS レベルで暗号化 |
+| 用途 | テーマ・言語設定など | 認証トークン・パスワード |
+
+セキュリティが必要な値は必ず `flutter_secure_storage` に保存する。
+
+#### FlutterSecureStorage の API
+
+```dart
+const storage = FlutterSecureStorage();
+
+await storage.write(key: 'token', value: 'abc123');
+final token = await storage.read(key: 'token');   // String?
+await storage.delete(key: 'token');
+```
+
+全て `async`。key は任意の文字列。
+
+#### build() でトークンを読み込んで自動ログイン
+
+`AsyncNotifier.build()` はアプリ起動時に一度だけ呼ばれる。ここでトークンを読めばアプリ再起動後の自動ログインが実現できる。
+
+```dart
+@override
+Future<AuthState> build() async {
+  final token = await ref.read(tokenStorageProvider).read();
+  return AuthState(isLoggedIn: token != null, token: token);
+}
+```
+
+`token != null` がそのままログイン判定になる。
+
+#### TokenStorage を Provider で DI する
+
+```dart
+// lib/features/auth/token_storage.dart
+final tokenStorageProvider = Provider<TokenStorage>((ref) {
+  return TokenStorage(const FlutterSecureStorage());
+});
+
+class TokenStorage {
+  const TokenStorage(this._storage);
+  final FlutterSecureStorage _storage;
+  static const _key = 'auth_token';
+
+  Future<String?> read() => _storage.read(key: _key);
+  Future<void> write(String token) => _storage.write(key: _key, value: token);
+  Future<void> delete() => _storage.delete(key: _key);
+}
+```
+
+`FlutterSecureStorage` を直接 `AuthNotifier` に持たせず、`TokenStorage` 経由にすることで差し替えやテストがしやすくなる。
+
+#### 今回の実装スコープ
+
+```
+lib/features/auth/
+  token_storage.dart        ← TokenStorage クラス + Provider
+  auth_provider.dart        ← build() でトークン読み込み、login/logout で書き込み/削除
+```
+
+---
+
+### Step 15: OAuth フロー（ASWebAuthenticationSession）
+
+#### なぜ WebView で OAuth をやってはいけないか
+
+| 方式 | 問題点 |
+|---|---|
+| アプリ内 WebView | アプリがパスワードを盗み見できる。ブラウザのセッション（Cookie）が使えない |
+| `ASWebAuthenticationSession` | OS が仲介。アプリからは認可コードしか見えない。Safari の SSO セッションを使える |
+
+OAuth 2.0 のベストプラクティス（RFC 8252）では、外部ブラウザ or `ASWebAuthenticationSession` を使うことが要求される。
+
+#### Authorization Code Flow（簡略版）
+
+```
+App → ブラウザ起動（認可 URL）
+      ユーザーがログイン・承認
+      ブラウザ → flutterapp://callback?code=xxx にリダイレクト
+flutter_web_auth_2 がコールバックを捕捉 → App に戻す
+App → code をトークンと交換（今回はモック）
+App → トークンを SecureStorage に保存
+```
+
+#### flutter_web_auth_2 の使い方
+
+```dart
+import 'package:flutter_web_auth_2/flutter_web_auth_2.dart';
+
+final result = await FlutterWebAuth2.authenticate(
+  url: 'http://localhost:8080/oauth/authorize',
+  callbackUrlScheme: 'flutterapp',  // Info.plist に登録したスキーム
+);
+
+final code = Uri.parse(result).queryParameters['code'];
+```
+
+iOS では `ASWebAuthenticationSession` が使われ、システムダイアログが表示される。
+
+#### URL スキームの登録（Info.plist）
+
+```xml
+<key>CFBundleURLTypes</key>
+<array>
+  <dict>
+    <key>CFBundleURLSchemes</key>
+    <array>
+      <string>flutterapp</string>
+    </array>
+  </dict>
+</array>
+```
+
+`flutterapp://callback` というコールバック URL をシステムが認識してアプリに渡すために必要。
+
+#### JS Bridge との連携
+
+OAuth ボタンは `login.html` に置く。タップ時は JS Bridge で Flutter に「OAuth を開始して」と伝え、Flutter 側で `FlutterWebAuth2.authenticate()` を呼ぶ。
+
+```javascript
+// login.html
+function handleOAuth() {
+  FlutterAuth.postMessage(JSON.stringify({ type: 'oauth' }));
+}
+```
+
+```dart
+// login_web_view_page.dart
+void _onAuthMessage(JavaScriptMessage message) {
+  final data = jsonDecode(message.message);
+  if (data['type'] == 'oauth') {
+    _startOAuthFlow();     // ← Flutter ネイティブ処理へ移譲
+  } else {
+    // 通常ログイン
+  }
+}
+```
+
+WebView 内の JS から直接 `ASWebAuthenticationSession` を呼ぶ手段はない。Bridge 経由でネイティブに移譲するのが正しいパターン。
+
+#### 今回の実装スコープ
+
+```
+html/login.html                        ← 「OAuth でログイン」ボタンを追加
+html/oauth/authorize.html              ← モック認可画面
+
+flutter_app/ios/Runner/Info.plist      ← CFBundleURLTypes に flutterapp を登録
+
+lib/features/auth/
+  pages/login_web_view_page.dart       ← type:'oauth' メッセージで _startOAuthFlow()
+  auth_provider.dart                   ← login(token:) で任意のトークンを受け取り保存
+```

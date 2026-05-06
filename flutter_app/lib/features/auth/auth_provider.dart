@@ -1,24 +1,28 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'token_storage.dart';
 
 // ── State ────────────────────────────────────────────────────────────────────
 class AuthState {
-  const AuthState({this.isLoggedIn = false});
+  const AuthState({this.isLoggedIn = false, this.token});
   final bool isLoggedIn;
+  final String? token;
 }
 
 // ── ViewModel ────────────────────────────────────────────────────────────────
 class AuthNotifier extends AsyncNotifier<AuthState> {
   @override
   Future<AuthState> build() async {
-    // Step 14 で flutter_secure_storage からトークンを読む
-    return const AuthState(isLoggedIn: false);
+    final token = await ref.read(tokenStorageProvider).read();
+    return AuthState(isLoggedIn: token != null, token: token);
   }
 
-  Future<void> login() async {
-    state = const AsyncData(AuthState(isLoggedIn: true));
+  Future<void> login({String token = 'dummy-token'}) async {
+    await ref.read(tokenStorageProvider).write(token);
+    state = AsyncData(AuthState(isLoggedIn: true, token: token));
   }
 
   Future<void> logout() async {
+    await ref.read(tokenStorageProvider).delete();
     state = const AsyncData(AuthState(isLoggedIn: false));
   }
 }
