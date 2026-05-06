@@ -10,25 +10,44 @@
     .card { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin: 1rem 0; }
     a { color: #1976d2; }
     .external { color: #c62828; }
+    .path { font-size: 0.8rem; color: #888; margin-bottom: 1rem; }
   </style>
 </head>
 <body>
-  <h1>Todo Web</h1>
-  <div class="card">
-    <h2>ローカルページ（ホワイトリスト内）</h2>
-    <ul>
-      <li><a href="/todos/1">Todo #1</a></li>
-      <li><a href="/todos/2">Todo #2</a></li>
-      <li><a href="/">トップへ戻る</a></li>
-    </ul>
-  </div>
-  <div class="card">
-    <h2>外部リンク（ホワイトリスト外）</h2>
-    <p>以下のリンクは外部ブラウザで開かれます。</p>
-    <ul>
-      <li><a class="external" href="https://flutter.dev">flutter.dev</a></li>
-      <li><a class="external" href="https://pub.dev">pub.dev</a></li>
-    </ul>
-  </div>
+  <p class="path" id="path-label"></p>
+  <div id="content"></div>
+  <script>
+    const path = window.location.pathname;
+    document.getElementById('path-label').textContent = '現在のパス: ' + path;
+
+    const todoMatch = path.match(/^\/todos\/(\d+)$/);
+    if (todoMatch) {
+      const id = todoMatch[1];
+      document.getElementById('content').innerHTML = `
+        <h1>Todo #${id}</h1>
+        <div class="card"><p>Todo ID: <strong>${id}</strong> の詳細ページ（ローカル）</p></div>
+        <div class="card"><a href="/">← トップへ戻る</a></div>
+      `;
+    } else {
+      document.getElementById('content').innerHTML = `
+        <h1>Todo Web</h1>
+        <div class="card">
+          <h2>ローカルページ（ホワイトリスト内）</h2>
+          <ul>
+            <li><a href="/todos/1">Todo #1</a></li>
+            <li><a href="/todos/2">Todo #2</a></li>
+            <li><a href="/todos/3">Todo #3</a></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h2>外部リンク（外部ブラウザで開く）</h2>
+          <ul>
+            <li><a class="external" href="https://flutter.dev">flutter.dev</a></li>
+            <li><a class="external" href="https://pub.dev">pub.dev</a></li>
+          </ul>
+        </div>
+      `;
+    }
+  </script>
 </body>
 </html>

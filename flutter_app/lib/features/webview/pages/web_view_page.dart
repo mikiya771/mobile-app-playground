@@ -45,7 +45,6 @@ class _WebViewPageState extends State<WebViewPage> {
       return NavigationDecision.navigate;
     }
 
-    // 外部URLは端末ブラウザで開く
     launchUrl(uri, mode: LaunchMode.externalApplication);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('外部ブラウザで開きます: $host')),
@@ -59,7 +58,7 @@ class _WebViewPageState extends State<WebViewPage> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(
-          _title.isEmpty ? widget.url : _title,
+          _title,
           overflow: TextOverflow.ellipsis,
         ),
         actions: [
