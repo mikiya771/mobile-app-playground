@@ -2,7 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'features/auth/auth_provider.dart';
-import 'features/auth/pages/login_page.dart';
+import 'features/auth/pages/login_web_view_page.dart';
 import 'features/todo/pages/todo_list_page.dart';
 import 'features/todo/pages/todo_detail_page.dart';
 import 'features/webview/pages/web_view_page.dart';
@@ -31,7 +31,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(
         path: '/login',
-        builder: (context, state) => const LoginPage(),
+        builder: (context, state) => const LoginWebViewPage(),
       ),
       GoRoute(
         path: '/',

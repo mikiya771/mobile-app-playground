@@ -18,7 +18,7 @@
 - [x] Step 10: JSONPlaceholder から Todo を取得・同期する（dio）
 - [x] Step 11: webview_flutter で Todo 詳細ページを表示する
 - [x] Step 12: ホワイトリスト制御を実装する
-- [ ] Step 13: ログイン画面（WebView + JS Bridge）
+- [x] Step 13: ログイン画面（WebView + JS Bridge）
 - [ ] Step 14: SecureStorage でトークン管理・AuthGuard
 - [ ] Step 15: OAuthフロー（ASWebAuthenticationSession）
 
@@ -1284,6 +1284,98 @@ TodoDetailPage
 
 ios/Runner/Info.plist
   → NSAppTransportSecurity に localhost の HTTP 例外を追加
+```
+
+### Step 13: ログイン画面（WebView + JS Bridge）
+
+#### JS Bridge とは
+
+WebView 内の JavaScript と Flutter が双方向に通信する仕組み。
+
+```
+JS → Flutter : JavaScriptChannel.postMessage()
+Flutter → JS : WebViewController.runJavaScript()
+```
+
+通常の WebView はサンドボックスなので Flutter のコードを直接呼べない。JS Bridge はその壁に「窓口」を開ける。
+
+#### JavaScriptChannel（JS → Flutter）
+
+`addJavaScriptChannel` で登録したチャンネル名がグローバル JS オブジェクトになる。
+
+```dart
+// Flutter 側
+_controller.addJavaScriptChannel(
+  'FlutterAuth',
+  onMessageReceived: (JavaScriptMessage msg) {
+    final data = jsonDecode(msg.message);  // {"token": "..."}
+    ref.read(authProvider.notifier).loginWithToken(data['token']);
+  },
+);
+```
+
+```javascript
+// HTML 側
+FlutterAuth.postMessage(JSON.stringify({ token: 'dummy-token' }));
+```
+
+`addJavaScriptChannel` は `WebViewController` の初期化時（`initState`）に呼ぶ。ページ遷移後も有効。
+
+#### runJavaScript（Flutter → JS）
+
+Flutter から JS 関数を呼び出す場合。主にページ読み込み後の初期化や状態注入に使う。
+
+```dart
+await _controller.runJavaScript('showError("ログインに失敗しました")');
+```
+
+戻り値が必要な場合は `runJavaScriptReturningResult()` を使う（String を返す）。
+
+#### セキュリティ上の注意点
+
+| 項目 | 問題 | 対策 |
+|---|---|---|
+| チャンネルの露出 | 外部ページから `FlutterAuth.postMessage()` を呼ばれる | ホワイトリストで外部ページへの遷移をブロック（Step 12） |
+| メッセージの検証 | 不正なトークン形式を受け入れる | `try/catch` + 型チェック |
+| `file://` アクセス | ローカルファイルが Bridge を使う | `JavaScriptMode` を `unrestricted` にしない（今回は localhost のみなので許容） |
+
+Bridge のセキュリティは「どのページが Bridge を持つか」が核心。`LoginWebViewPage` のような用途固有のページにだけ Bridge を追加し、汎用 `WebViewPage` には付けない。
+
+#### ConsumerStatefulWidget
+
+WebView ページは：
+- `StatefulWidget` が必要（`WebViewController` はローカル状態）
+- `ConsumerWidget` が必要（`authProvider` を呼ぶ）
+
+この両方が必要なときは `ConsumerStatefulWidget` を使う。
+
+```dart
+class LoginWebViewPage extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<LoginWebViewPage> createState() => _LoginWebViewPageState();
+}
+
+class _LoginWebViewPageState extends ConsumerState<LoginWebViewPage> {
+  // ref が使える + StatefulWidget のライフサイクルも持つ
+}
+```
+
+#### 今回の実装スコープ
+
+```
+html/login.html                      ← ログインフォーム（JS Bridge 呼び出しあり）
+
+features/auth/pages/
+  login_web_view_page.dart           ← ConsumerStatefulWidget
+    → JavaScriptChannel 'FlutterAuth' を登録
+    → メッセージ受信で authProvider.notifier.login() を呼ぶ
+    → router redirect が / にリダイレクト（既存の仕組みを再利用）
+
+router.dart
+  → /login を LoginWebViewPage に差し替え
+
+auth_provider.dart
+  → login() はそのまま使用（トークン管理は Step 14 で追加）
 ```
 
 ---
