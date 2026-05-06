@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 import 'todo.dart';
+import 'todo_repository.dart';
 import 'todo_repository_interface.dart';
 import 'todo_repository_provider.dart';
 
@@ -35,10 +36,12 @@ class TodoListState {
 // ── ViewModel ────────────────────────────────────────────────────────────────
 class TodoListNotifier extends AsyncNotifier<TodoListState> {
   late final TodoRepositoryInterface _repo;
+  late final TodoRepository _repoImpl;
 
   @override
   Future<TodoListState> build() async {
     _repo = ref.read(todoRepositoryProvider);
+    _repoImpl = _repo as TodoRepository;
     final todos = await _repo.findAll();
     return TodoListState(todos: todos);
   }
@@ -94,6 +97,14 @@ class TodoListNotifier extends AsyncNotifier<TodoListState> {
   void changeFilter(TodoFilter filter) {
     final current = state.requireValue;
     state = AsyncData(current.copyWith(filter: filter));
+  }
+
+  Future<void> sync() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() async {
+      final todos = await _repoImpl.syncFromRemote();
+      return TodoListState(todos: todos);
+    });
   }
 }
 

@@ -19,6 +19,10 @@ class TodoListPage extends ConsumerWidget {
         title: const Text('TODO リスト'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.sync),
+            onPressed: () => ref.read(todoListProvider.notifier).sync(),
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => ref.read(authProvider.notifier).logout(),
           ),

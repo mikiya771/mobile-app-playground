@@ -13,8 +13,8 @@
 - [x] Step 5: インタラクションを追加する（トグル・フィルター）
 - [x] Step 6: タップ操作と状態フローを整理する
 - [x] Step 7: sqflite で CRUD を実装する / Riverpod + MVVM + Clean Architecture 導入
-- [ ] Step 8: 一覧 → 詳細WebView → 編集フォームを繋ぐ（go_router）
-- [ ] Step 9: AuthGuard を追加する
+- [x] Step 8: 一覧 → 詳細WebView → 編集フォームを繋ぐ（go_router）
+- [x] Step 9: AuthGuard を追加する
 - [ ] Step 10: JSONPlaceholder から Todo を取得・同期する（dio）
 - [ ] Step 11: webview_flutter で Todo 詳細ページを表示する
 - [ ] Step 12: ホワイトリスト制御を実装する
@@ -800,6 +800,174 @@ context.go(from);
 ログイン済み
   → / にアクセス → リダイレクトなし → TodoListPage
   → /login にアクセス → / にリダイレクト（二重ログイン防止）
+```
+
+---
+
+### Step 10: dio で API 通信 + DataSource 分離
+
+#### なぜ dio か
+
+Flutter の HTTP 通信には `http`（標準）と `dio` がある。
+
+| | `http` | `dio` |
+|---|---|---|
+| インターセプター | なし | あり（認証ヘッダー自動付与、エラー共通処理） |
+| リトライ | 手動 | プラグインで対応可 |
+| キャンセル | 難しい | `CancelToken` で対応 |
+| 採用場面 | 簡単な1〜2本 | 認証・エラーハンドリングが必要な本番アプリ |
+
+インターセプターが使える `dio` が本番アプリでは事実上の標準。
+
+#### DataSource 分離（Step 7 で先送りにした内容）
+
+Step 7 では Repository が直接 sqflite を叩いていた。API が加わったタイミングで **DataSource** を切り出す。
+
+```
+Repository（調停役）
+  ├── LocalDataSource  ← sqflite
+  └── RemoteDataSource ← dio / API
+```
+
+Repository はどちらのデータソースを使うか判断するだけ。ビジネスロジック（Notifier）はデータの出所を知らない。
+
+```dart
+// Repository の責務
+Future<List<Todo>> findAll() async {
+  // ローカルを正とし、リモートで差分同期
+  final local = await _local.findAll();
+  if (local.isNotEmpty) return local;         // キャッシュがあればそれを返す
+  final remote = await _remote.fetchAll();    // なければ API から取得
+  await _local.insertAll(remote);             // ローカルに保存
+  return remote;
+}
+```
+
+#### DataMapper パターン
+
+API レスポンス（JSON）と Domain Entity（`Todo`）は別物として扱う。
+
+```
+JSON レスポンス
+  ↓ DataMapper（変換）
+Todo（Domain Entity）
+```
+
+```dart
+// API レスポンスの形（JSONPlaceholder の場合）
+{
+  "id": 1,
+  "title": "delectus aut autem",
+  "completed": false,
+  "userId": 1
+}
+
+// Domain Entity の形（アプリ内）
+Todo(id: "uuid", title: "...", isCompleted: false, priority: medium, ...)
+```
+
+変換を Repository や DataSource に混ぜると責務が増えすぎる。DataMapper（または `fromJson` ファクトリ）として分離する。
+
+```dart
+// RemoteDataSource で API の形を表す DTO
+class TodoDto {
+  const TodoDto({required this.id, required this.title, required this.completed});
+  final int id;
+  final String title;
+  final bool completed;
+
+  factory TodoDto.fromJson(Map<String, dynamic> json) => TodoDto(
+    id: json['id'] as int,
+    title: json['title'] as String,
+    completed: json['completed'] as bool,
+  );
+
+  // DTO → Domain Entity
+  Todo toEntity() => Todo(
+    id: id.toString(),
+    title: title,
+    isCompleted: completed,
+    createdAt: DateTime.now(),
+  );
+}
+```
+
+#### dio の基本
+
+```dart
+final dio = Dio(BaseOptions(baseUrl: 'https://jsonplaceholder.typicode.com'));
+
+// GET /todos
+final response = await dio.get('/todos');
+final list = (response.data as List)
+    .map((e) => TodoDto.fromJson(e as Map<String, dynamic>))
+    .toList();
+
+// インターセプター（認証ヘッダーの自動付与）
+dio.interceptors.add(InterceptorsWrapper(
+  onRequest: (options, handler) {
+    options.headers['Authorization'] = 'Bearer $token';
+    handler.next(options);
+  },
+  onError: (error, handler) {
+    if (error.response?.statusCode == 401) {
+      // 認証切れ → ログアウト処理
+    }
+    handler.next(error);
+  },
+));
+```
+
+#### エラーハンドリングの方針
+
+API エラーは Repository 層で `AppException` に変換して上位に伝える。Notifier では `AsyncError` になり、Page の `asyncState.when(error: ...)` で表示する。
+
+```
+DioException（ネットワークエラー・4xx・5xx）
+  ↓ Repository で catch → AppException に変換
+AsyncError（Riverpod）
+  ↓ asyncState.when(error: (e, _) => ...)
+エラー UI 表示
+```
+
+#### ベストプラクティス
+
+| 項目 | 推奨 | 理由 |
+|---|---|---|
+| HTTP クライアント | `dio` | インターセプター・エラー処理が充実 |
+| DTO と Entity の分離 | `TodoDto` → `Todo.fromDto()` | API 仕様変更の影響を DataSource 層に閉じ込める |
+| Repository の役割 | キャッシュ戦略の判断のみ | DataSource の組み合わせを調停する |
+| エラー型 | 独自 `AppException` | `DioException` を Domain 層に漏らさない |
+| `dio` インスタンス | `Provider` で管理 | インターセプターを一か所で設定 |
+| オフライン対応 | Local 優先・Remote で同期 | sqflite をキャッシュとして使う |
+
+#### 今回の実装スコープ
+
+```
+RemoteDataSource（dio）
+  → JSONPlaceholder GET /todos → TodoDto リスト
+    → TodoDto.toEntity() で Todo に変換
+      → LocalDataSource（sqflite）にキャッシュ保存
+        → UI に表示
+
+同期ボタン（AppBar）
+  → API から最新を取得 → ローカルを上書き → UI 更新
+```
+
+ディレクトリ構成の変化:
+```
+features/todo/
+  todo.dart
+  todo_repository_interface.dart
+  todo_repository.dart          ← Repository（調停役）に変更
+  todo_repository_provider.dart
+  data/
+    local/
+      todo_local_data_source.dart   ← 旧 todo_repository.dart の sqflite ロジック
+    remote/
+      todo_remote_data_source.dart  ← 新規: dio で API 通信
+      todo_dto.dart                 ← 新規: API レスポンスの DTO + DataMapper
+  ...
 ```
 
 ---
