@@ -32,7 +32,7 @@ class TodoDetailPage extends ConsumerWidget {
             icon: const Icon(Icons.open_in_browser),
             tooltip: 'Web で開く',
             onPressed: () {
-              final url = 'https://jsonplaceholder.typicode.com/todos/${todo.id}';
+              final url = 'http://localhost:8080/todos/${todo.id}';
               context.push('/webview?url=${Uri.encodeComponent(url)}');
             },
           ),

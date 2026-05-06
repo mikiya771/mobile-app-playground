@@ -16,8 +16,8 @@
 - [x] Step 8: 一覧 → 詳細WebView → 編集フォームを繋ぐ（go_router）
 - [x] Step 9: AuthGuard を追加する
 - [x] Step 10: JSONPlaceholder から Todo を取得・同期する（dio）
-- [ ] Step 11: webview_flutter で Todo 詳細ページを表示する
-- [ ] Step 12: ホワイトリスト制御を実装する
+- [x] Step 11: webview_flutter で Todo 詳細ページを表示する
+- [x] Step 12: ホワイトリスト制御を実装する
 - [ ] Step 13: ログイン画面（WebView + JS Bridge）
 - [ ] Step 14: SecureStorage でトークン管理・AuthGuard
 - [ ] Step 15: OAuthフロー（ASWebAuthenticationSession）
@@ -1116,6 +1116,175 @@ TodoDetailPage の AppBar に「Web で開く」ボタン
 ```
 
 `WebViewPage` は URL をクエリパラメータで受け取る汎用ページとして実装。Step 12 以降のホワイトリスト・ログインでも再利用する。
+
+---
+
+### Step 12: ホワイトリスト制御
+
+#### ホワイトリストとは
+
+WebView 内でユーザーがリンクをタップして外部サイトに飛んでしまうのを防ぐ仕組み。許可ドメインのリストを持ち、それ以外への遷移はブロックする。
+
+```
+ユーザーがリンクをタップ
+  → NavigationDelegate.onNavigationRequest が呼ばれる
+    → URL がホワイトリストに含まれる？
+        Yes → NavigationDecision.navigate（許可）
+        No  → NavigationDecision.prevent（ブロック）
+              + 外部ブラウザで開く / スナックバーで通知
+```
+
+#### 設計の選択肢
+
+| 方法 | 特徴 |
+|---|---|
+| `WebViewPage` にハードコード | 最もシンプル。ページ固有のルールに向く |
+| 設定ファイル（`whitelist.dart`）に定数として定義 | アプリ全体で共通ルールを持てる |
+| サーバーから取得 | 動的に変更できるが複雑になる |
+
+今回は**設定ファイルに定数**として定義する。将来サーバー取得に変える場合も Repository 層で差し替えるだけでよい。
+
+#### `NavigationDelegate` でホワイトリストを実装する
+
+```dart
+NavigationDelegate(
+  onNavigationRequest: (request) {
+    final uri = Uri.tryParse(request.url);
+    if (uri == null) return NavigationDecision.prevent;
+
+    final isAllowed = WebViewConfig.allowedHosts.any(
+      (host) => uri.host == host || uri.host.endsWith('.$host'),
+    );
+
+    if (isAllowed) return NavigationDecision.navigate;
+
+    // ブロックされたリンクを外部ブラウザで開く（url_launcher）
+    launchUrl(uri, mode: LaunchMode.externalApplication);
+    return NavigationDecision.prevent;
+  },
+)
+```
+
+サブドメインも許可する場合は `uri.host.endsWith('.$host')` で判定する。
+
+#### `url_launcher` で外部ブラウザを開く
+
+ホワイトリスト外の URL はアプリ内で開かず、Safari / Chrome などの外部ブラウザに渡す。
+
+```dart
+import 'package:url_launcher/url_launcher.dart';
+
+await launchUrl(
+  Uri.parse('https://external.com'),
+  mode: LaunchMode.externalApplication,  // 外部ブラウザで開く
+);
+```
+
+`LaunchMode` の種類：
+
+| モード | 動作 |
+|---|---|
+| `externalApplication` | Safari / Chrome などのデフォルトブラウザ |
+| `inAppBrowserView` | アプリ内ブラウザ（Safari View Controller） |
+| `platformDefault` | OS のデフォルト動作 |
+
+#### ホワイトリストの設計
+
+```dart
+// lib/config/web_view_config.dart
+abstract final class WebViewConfig {
+  static const List<String> allowedHosts = ['localhost', '127.0.0.1'];
+}
+```
+
+`abstract final class` はインスタンス化・継承を禁止する定数クラスの書き方。コンストラクタを隠す `_()` より明示的。
+
+今回はローカルの nginx サーバー（`localhost:8080`）のみをホワイトリストに入れる。外部サイト（`flutter.dev` 等）へのリンクはブロックして外部ブラウザで開く。
+
+#### ベストプラクティス
+
+| 項目 | 推奨 | 理由 |
+|---|---|---|
+| ホワイトリストの定義場所 | 設定ファイル（`config/`）| 変更箇所を一か所に集中 |
+| ブロック時の動作 | 外部ブラウザで開く | ユーザーがリンクを開けない状況を防ぐ |
+| サブドメイン | `endsWith` で許可 | `api.example.com` なども通す |
+| `file://` や `about:` | 明示的に許可 or ブロック | 意図しない挙動を防ぐ |
+| エラーハンドリング | `Uri.tryParse()` で null チェック | 不正 URL でのクラッシュを防ぐ |
+| 初期 URL のバリデーション | `WebViewPage` 表示前にチェック | 空文字や不正 URL を弾く |
+
+#### ローカル Web サーバー（nginx + docker-compose）
+
+WebView のホワイトリスト動作を確認するために、ローカルで nginx を起動する。
+
+```yaml
+# docker-compose.yml
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - ./html:/usr/share/nginx/html:ro
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+```
+
+```nginx
+# nginx/nginx.conf
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
+
+起動: `docker-compose up -d`（`zed/flutter/` ディレクトリで実行）
+
+#### iOS ATS (App Transport Security)
+
+iOS はデフォルトで `http://` の通信をブロックする。開発中に `localhost` へ HTTP でアクセスするには `Info.plist` に例外を追加する。
+
+```xml
+<key>NSAppTransportSecurity</key>
+<dict>
+    <key>NSExceptionDomains</key>
+    <dict>
+        <key>localhost</key>
+        <dict>
+            <key>NSExceptionAllowsInsecureHTTPLoads</key>
+            <true/>
+        </dict>
+    </dict>
+</dict>
+```
+
+**本番環境では `localhost` 以外の HTTP 例外を追加しないこと**。App Store レビューでリジェクト対象になる場合がある。
+
+#### 今回の実装スコープ
+
+```
+zed/flutter/
+  html/index.html              ← ローカル HTML（ホワイトリスト内/外のリンクを含む）
+  nginx/nginx.conf             ← nginx 設定
+  docker-compose.yml           ← nginx 起動定義
+
+flutter_app/lib/config/
+  web_view_config.dart         ← ホワイトリスト定数（allowedHosts = ['localhost', '127.0.0.1']）
+
+WebViewPage
+  → NavigationDelegate に allowedHosts チェックを追加
+  → ブロック時は url_launcher で外部ブラウザに渡す
+  → ブロックされた旨を SnackBar で通知
+
+TodoDetailPage
+  → "Web で開く" の URL を http://localhost:8080/todos/{id} に変更
+
+ios/Runner/Info.plist
+  → NSAppTransportSecurity に localhost の HTTP 例外を追加
+```
 
 ---
 

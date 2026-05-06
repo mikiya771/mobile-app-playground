@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import '../../../config/web_view_config.dart';
 
 class WebViewPage extends StatefulWidget {
   const WebViewPage({super.key, required this.url});
@@ -21,6 +23,7 @@ class _WebViewPageState extends State<WebViewPage> {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(NavigationDelegate(
+        onNavigationRequest: _onNavigationRequest,
         onPageStarted: (url) => setState(() => _isLoading = true),
         onPageFinished: (url) async {
           final title = await _controller.getTitle();
@@ -31,6 +34,23 @@ class _WebViewPageState extends State<WebViewPage> {
         },
       ))
       ..loadRequest(Uri.parse(widget.url));
+  }
+
+  NavigationDecision _onNavigationRequest(NavigationRequest request) {
+    final uri = Uri.tryParse(request.url);
+    if (uri == null) return NavigationDecision.prevent;
+
+    final host = uri.host;
+    if (WebViewConfig.allowedHosts.contains(host)) {
+      return NavigationDecision.navigate;
+    }
+
+    // 外部URLは端末ブラウザで開く
+    launchUrl(uri, mode: LaunchMode.externalApplication);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('外部ブラウザで開きます: $host')),
+    );
+    return NavigationDecision.prevent;
   }
 
   @override
