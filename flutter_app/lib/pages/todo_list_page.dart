@@ -1,122 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
-import '../models/todo.dart';
-import '../providers/todo_repository_provider.dart';
-import '../repositories/todo_repository_interface.dart';
+import '../providers/todo_list_provider.dart';
 import '../widgets/todo_list.dart';
 
-const _uuid = Uuid();
-
-class TodoListPage extends ConsumerStatefulWidget {
+class TodoListPage extends ConsumerWidget {
   const TodoListPage({super.key});
 
   @override
-  ConsumerState<TodoListPage> createState() => _TodoListPageState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final state = ref.watch(todoListProvider);
+    final notifier = ref.read(todoListProvider.notifier);
 
-class _TodoListPageState extends ConsumerState<TodoListPage> {
-  late final TodoRepositoryInterface _repo;
-  List<Todo> _todos = [];
-  TodoFilter _filter = TodoFilter.all;
-  bool _loading = true;
-
-  List<Todo> get _filteredTodos => switch (_filter) {
-        TodoFilter.all => _todos,
-        TodoFilter.active => _todos.where((t) => !t.isCompleted).toList(),
-        TodoFilter.completed => _todos.where((t) => t.isCompleted).toList(),
-      };
-
-  @override
-  void initState() {
-    super.initState();
-    _repo = ref.read(todoRepositoryProvider);
-    _load();
-  }
-
-  Future<void> _load() async {
-    final todos = await _repo.findAll();
-    setState(() {
-      _todos = todos;
-      _loading = false;
-    });
-  }
-
-  Future<void> _toggle(String id) async {
-    final todo = _todos.firstWhere((t) => t.id == id);
-    final updated = todo.copyWith(isCompleted: !todo.isCompleted);
-    await _repo.update(updated);
-    setState(() {
-      _todos = _todos.map((t) => t.id == id ? updated : t).toList();
-    });
-  }
-
-  Future<void> _add(String title) async {
-    final todo = Todo(
-      id: _uuid.v4(),
-      title: title,
-      createdAt: DateTime.now(),
-    );
-    await _repo.insert(todo);
-    setState(() => _todos = [..._todos, todo]);
-  }
-
-  Future<void> _delete(String id) async {
-    await _repo.delete(id);
-    setState(() => _todos = _todos.where((t) => t.id != id).toList());
-  }
-
-  void _onFilterChange(TodoFilter filter) {
-    setState(() => _filter = filter);
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('TODO リスト'),
       ),
-      body: _loading
+      body: state.loading
           ? const Center(child: CircularProgressIndicator())
           : TodoList(
-              todos: _filteredTodos,
-              selectedFilter: _filter,
-              onFilterChange: _onFilterChange,
-              onToggle: _toggle,
-              onDelete: _delete,
+              todos: state.filteredTodos,
+              selectedFilter: state.filter,
+              onFilterChange: notifier.changeFilter,
+              onToggle: notifier.toggle,
+              onDelete: notifier.delete,
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddDialog(context),
+        onPressed: () => _showAddDialog(context, ref),
         tooltip: '追加',
         child: const Icon(Icons.add),
       ),
     );
   }
 
-  Future<void> _showAddDialog(BuildContext context) async {
+  Future<void> _showAddDialog(BuildContext context, WidgetRef ref) async {
     final controller = TextEditingController();
-    final title = await showDialog<String>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Todo を追加'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: 'タイトルを入力'),
+    try {
+      final title = await showDialog<String>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Todo を追加'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: const InputDecoration(hintText: 'タイトルを入力'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('キャンセル'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, controller.text),
+              child: const Text('追加'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('キャンセル'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, controller.text),
-            child: const Text('追加'),
-          ),
-        ],
-      ),
-    );
-    if (title != null && title.isNotEmpty) await _add(title);
+      );
+      if (title != null && title.isNotEmpty) {
+        await ref.read(todoListProvider.notifier).add(title);
+      }
+    } finally {
+      controller.dispose();
+    }
   }
 }

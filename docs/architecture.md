@@ -271,8 +271,9 @@ lib/
     todo_card.dart
     filter_tab_bar.dart
     priority_badge.dart
+  notifiers/                         # ViewModel（Notifier / AsyncNotifier）
+    todo_list_notifier.dart          # TodoListState + TodoListNotifier
   # 今後追加予定
-  # notifiers/                       # ViewModel（Notifier / AsyncNotifier）
   # router/                          # go_router 定義
 ```
 
