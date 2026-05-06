@@ -257,25 +257,46 @@ final todoBloCProvider = Provider<TodoBloc>((ref) {
 ```
 lib/
   main.dart                          # ProviderScope + MaterialApp のみ
-  models/                            # Domain Layer: Entity
-    todo.dart
-  repositories/                      # Domain Layer: Interface / Data Layer: 実装
-    todo_repository_interface.dart
-    todo_repository.dart
-  providers/                         # DI 定義
-    todo_repository_provider.dart
-  pages/                             # Presentation Layer: Page（ConsumerWidget）
-    todo_list_page.dart
-  widgets/                           # Presentation Layer: 純粋 Widget
-    todo_list.dart
-    todo_card.dart
-    filter_tab_bar.dart
-    priority_badge.dart
-  notifiers/                         # ViewModel（Notifier / AsyncNotifier）
-    todo_list_notifier.dart          # TodoListState + TodoListNotifier
+  features/
+    todo/                            # Todo フィーチャー全体
+      todo.dart                      # Domain Layer: Entity（TodoPriority / TodoFilter / Todo）
+      todo_repository_interface.dart # Domain Layer: Repository 抽象
+      todo_repository.dart           # Data Layer: sqflite 実装
+      todo_repository_provider.dart  # DI 定義
+      todo_list_provider.dart        # State + Notifier（ViewModel）+ Provider を一本化
+      pages/
+        todo_list_page.dart          # Presentation Layer: Page（ConsumerWidget）
+      widgets/                       # Presentation Layer: 純粋 Widget
+        todo_list.dart
+        todo_card.dart
+        filter_tab_bar.dart
+        priority_badge.dart
   # 今後追加予定
+  # features/auth/                   # 認証フィーチャー
   # router/                          # go_router 定義
 ```
+
+**feature-first を採用する理由**
+
+layer-first（`models/`, `repositories/`, `providers/` …）は層ごとにフォルダを切るが、機能追加時に複数フォルダをまたいで変更が発生する。
+feature-first は「一つの機能に関係するファイルを一か所に集める」ため、変更の局所性が高い。
+
+**`todo_list_provider.dart` の内部構造**
+
+```dart
+// ── State ──────────────────────────────
+class TodoListState { ... }
+
+// ── ViewModel ──────────────────────────
+class TodoListNotifier extends Notifier<TodoListState> { ... }
+
+// ── Provider（DI 登録） ────────────────
+final todoListProvider = NotifierProvider<TodoListNotifier, TodoListState>(
+  TodoListNotifier.new,
+);
+```
+
+State / Notifier / Provider は密結合のため同一ファイルにまとめる。これが Flutter コミュニティの慣習。
 
 ---
 

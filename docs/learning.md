@@ -12,7 +12,7 @@
 - [x] Step 4: モデルクラス Todo を作る
 - [x] Step 5: インタラクションを追加する（トグル・フィルター）
 - [x] Step 6: タップ操作と状態フローを整理する
-- [ ] Step 7: sqflite で CRUD を実装する
+- [x] Step 7: sqflite で CRUD を実装する / Riverpod + MVVM + Clean Architecture 導入
 - [ ] Step 8: 一覧 → 詳細WebView → 編集フォームを繋ぐ（go_router）
 - [ ] Step 9: AuthGuard を追加する
 - [ ] Step 10: JSONPlaceholder から Todo を取得・同期する（dio）
@@ -45,26 +45,64 @@
 | 状態の種類 | 例 | 置き場所 |
 |---|---|---|
 | UIローカル状態 | ドロップダウンの開閉・アコーディオン・アニメーション | ウィジェット自身（`StatefulWidget`） |
-| データ・ビジネス状態 | Todoリスト・フィルター選択・認証 | ページ層 → 引数で流す |
+| ビジネス状態 | Todoリスト・フィルター選択・認証 | `Notifier`（ViewModel）|
 
 - **データは引数で下に流す**（prop drilling）
 - **イベントはコールバックで上に返す**
-- **Riverpod は導入しない**（非同期・横断的な状態が genuinely 必要になった時点で判断する）
+- **`ref.watch()` はページ層にのみ書く**。ウィジェット層は引数だけを見る
 
 ```
-TodoListPage（StatefulWidget）
-  ├── _todos, _filter          ← データ・ビジネス状態
+TodoListPage（ConsumerWidget）
+  ├── ref.watch(todoListProvider) → state
   └── TodoList(
-        todos: todos,
-        onToggle: _toggle,
+        todos: state.filteredTodos,   ← 引数で下に流す
+        onToggle: notifier.toggle,    ← コールバックで上に返す
       )
         └── TodoCard(
               todo: todo,
               onToggle: onToggle,
             )
-              └── _ExpandedDescription（StatefulWidget）
-                    └── _isExpanded  ← UIローカル状態（ウィジェットが持つ）
 ```
+
+### Notifier と ViewModel の関係
+
+Notifier は MVVM の ViewModel に対応する。
+
+**基本形: 1 Page : 1 Notifier**
+```
+TodoListPage  ←→  TodoListNotifier
+LoginPage     ←→  LoginNotifier
+```
+
+**例外: アプリ横断の共有状態は 1 Notifier : N Pages**
+```
+AuthNotifier
+  ├── LoginPage（ログイン操作）
+  ├── ProfilePage（ユーザー情報表示）
+  └── AppBar（アバター表示）
+```
+
+ページをまたいで同期が必要な状態（認証・カート・通知数など）だけが例外になる。
+
+### React との対応関係
+
+| React | Flutter/Riverpod |
+|---|---|
+| `useState` | `StatefulWidget` の `setState` |
+| `useContext` + Context API | `ref.watch(provider)` |
+| Context.Provider | `ProviderScope` + `Provider` |
+
+Riverpod の `Provider` は React の Context に相当する。ウィジェットツリーの外に存在するため、画面回転・バックグラウンド復帰でも状態が保持される。
+
+### 状態の永続化
+
+| 状況 | 状態 |
+|---|---|
+| 画面回転 | Riverpod Provider に保持される（ProviderScope が生きているため） |
+| バックグラウンド → 復帰 | 同上 |
+| アプリ完全終了 → 再起動 | **消える**（メモリ解放） |
+
+再起動後も復元するには sqflite などで永続化し、`build()` 内の `_load()` で読み直す（現在の実装はこの方式）。
 
 ---
 
@@ -286,9 +324,10 @@ TodoListPage（Scaffold）
 
 ```
 lib/
-  models/
-    todo.dart    ← 純粋Dartクラス。import は dart:core のみ
-  main.dart      ← Flutter依存。モデルの変換（color/label）はここで行う
+  features/
+    todo/
+      todo.dart    ← 純粋Dartクラス。import は dart:core のみ
+  main.dart        ← Flutter依存。モデルの変換（color/label）はここで行う
 ```
 
 **TodoPriority enum**
