@@ -10,12 +10,14 @@ class TodoList extends StatelessWidget {
     required this.selectedFilter,
     required this.onFilterChange,
     required this.onToggle,
+    required this.onDelete,
   });
 
   final List<Todo> todos;
   final TodoFilter selectedFilter;
   final void Function(TodoFilter) onFilterChange;
   final void Function(String id) onToggle;
+  final void Function(String id) onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +35,7 @@ class TodoList extends StatelessWidget {
             itemBuilder: (context, index) => TodoCard(
               todo: todos[index],
               onToggle: onToggle,
+              onDelete: onDelete,
             ),
           ),
         ),
