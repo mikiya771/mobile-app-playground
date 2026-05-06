@@ -671,6 +671,139 @@ TodoListPage（一覧）
 
 ---
 
+### Step 9: AuthGuard（ルートガード）
+
+#### AuthGuard とは
+
+認証されていないユーザーが保護されたルートにアクセスしようとしたとき、ログイン画面にリダイレクトする仕組み。
+
+```
+未ログイン状態で /todos にアクセス
+  → router の redirect で検知
+    → /login にリダイレクト
+      → ログイン成功
+        → /todos に戻る
+```
+
+React Router の `<PrivateRoute>` / Next.js の `middleware` に相当する概念。
+
+#### go_router の `redirect`
+
+`GoRouter` に `redirect` コールバックを渡すことでルートガードを宣言的に実装できる。
+
+```dart
+final router = GoRouter(
+  redirect: (context, state) {
+    final isLoggedIn = /* 認証状態を確認 */;
+    final isOnLogin = state.matchedLocation == '/login';
+
+    if (!isLoggedIn && !isOnLogin) return '/login';  // 未ログイン → /login へ
+    if (isLoggedIn && isOnLogin) return '/';          // ログイン済みで /login → / へ
+    return null;                                       // null = リダイレクトしない
+  },
+  routes: [...],
+);
+```
+
+`redirect` は全ルート遷移の前に呼ばれる。`null` を返すと通常のナビゲーションが続行される。
+
+#### `refreshListenable` で認証状態の変化を Router に伝える
+
+`redirect` はデフォルトでは画面遷移時にしか呼ばれない。ログイン成功など「状態が変わったタイミング」でも再評価させるには `refreshListenable` を使う。
+
+```dart
+final router = GoRouter(
+  refreshListenable: authNotifierListenable,  // ← 変化を監視
+  redirect: (context, state) { ... },
+  routes: [...],
+);
+```
+
+`refreshListenable` は `Listenable`（`ChangeNotifier` など）を受け取る。Riverpod の Provider は `Listenable` ではないため、`ProviderListenable` をブリッジする小さなアダプターが必要になる。
+
+```dart
+// Riverpod の Provider → Listenable に変換するアダプター
+class _RouterRefreshNotifier extends ChangeNotifier {
+  _RouterRefreshNotifier(Ref ref) {
+    ref.listen(authProvider, (_, __) => notifyListeners());
+  }
+}
+```
+
+`authProvider` が変化するたびに `notifyListeners()` が呼ばれ、Router が `redirect` を再評価する。
+
+#### 認証状態の設計
+
+認証状態は「アプリ横断の共有状態」なので `AsyncNotifier` で管理する。
+
+```dart
+class AuthState {
+  const AuthState({this.isLoggedIn = false});
+  final bool isLoggedIn;
+}
+
+class AuthNotifier extends AsyncNotifier<AuthState> {
+  @override
+  Future<AuthState> build() async {
+    // 起動時: 保存済みトークンを確認（Step 14 で SecureStorage に変更）
+    return const AuthState(isLoggedIn: false);
+  }
+
+  Future<void> login() async { ... }
+  Future<void> logout() async { ... }
+}
+```
+
+#### ログイン後のリダイレクト先（deep link 対応）
+
+ユーザーが `/todos/abc` を開こうとしてログイン画面に飛ばされた場合、ログイン後は `/todos/abc` に戻るべき。
+
+```dart
+redirect: (context, state) {
+  if (!isLoggedIn && !isOnLogin) {
+    // 元の遷移先を from パラメータで保持
+    final from = state.matchedLocation;
+    return '/login?from=${Uri.encodeComponent(from)}';
+  }
+  ...
+}
+
+// ログイン成功後
+final from = state.uri.queryParameters['from'] ?? '/';
+context.go(from);
+```
+
+#### ベストプラクティス
+
+| 項目 | 推奨 | 理由 |
+|---|---|---|
+| 認証状態の管理 | `AsyncNotifier` + Provider | Singleton 禁止。テスト時に差し替え可能 |
+| トークン保存 | `flutter_secure_storage` | Keychain（iOS）/ Keystore（Android）に暗号化保存 |
+| router との連携 | `refreshListenable` | ログイン/ログアウト後に即リダイレクト |
+| `redirect` の条件 | ログイン済み + `/login` → `/` | ログイン済みでログイン画面を表示しない |
+| deep link 保持 | `?from=` クエリパラメータ | ログイン後に元のページに戻れる |
+| ログアウト処理 | `ref.invalidate(authProvider)` | Provider をリセットして初期状態に戻す |
+| API エラー 401 | Repository からエラーを throw | ViewModel/Page で catch して logout() を呼ぶ |
+
+#### 今回の実装スコープ（Step 9）
+
+本物の OAuth は Step 15 で実装するため、ここでは**仮ログイン**（ボタンを押したらログイン状態になる）でガードの仕組みだけを作る。
+
+```
+未ログイン
+  → アプリ起動 → /login にリダイレクト
+      → 「ログイン」ボタンタップ → authNotifier.login()
+          → authProvider が更新 → refreshListenable が発火
+              → redirect が再評価 → / にリダイレクト
+                  → TodoListPage が表示される
+
+ログイン済み
+  → / にアクセス → リダイレクトなし → TodoListPage
+  → /login にアクセス → / にリダイレクト（二重ログイン防止）
+```
+
+---
+
 ## セットアップメモ
 
 - プロジェクト: `flutter_app/`（`--platforms ios,android` で作成）

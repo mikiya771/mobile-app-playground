@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../auth/auth_provider.dart';
 import '../todo_list_provider.dart';
 import '../widgets/todo_list.dart';
 
@@ -16,6 +17,12 @@ class TodoListPage extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('TODO リスト'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () => ref.read(authProvider.notifier).logout(),
+          ),
+        ],
       ),
       body: asyncState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
