@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import '../models/todo.dart';
-import '../providers/todo_repository_provider.dart';
-import '../repositories/todo_repository_interface.dart';
+import 'todo.dart';
+import 'todo_repository_interface.dart';
+import 'todo_repository_provider.dart';
 
 const _uuid = Uuid();
 
@@ -82,3 +82,7 @@ class TodoListNotifier extends Notifier<TodoListState> {
     state = state.copyWith(filter: filter);
   }
 }
+
+// ── Provider ─────────────────────────────────────────────────────────────────
+final todoListProvider =
+    NotifierProvider<TodoListNotifier, TodoListState>(TodoListNotifier.new);

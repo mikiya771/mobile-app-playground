@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/todo.dart';
+import '../todo.dart';
 import 'priority_badge.dart';
 
 class TodoCard extends StatelessWidget {

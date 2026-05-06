@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/todo.dart';
+import '../todo.dart';
 import 'filter_tab_bar.dart';
 import 'todo_card.dart';
 

@@ -1,4 +1,4 @@
-import '../models/todo.dart';
+import 'todo.dart';
 
 abstract class TodoRepositoryInterface {
   Future<List<Todo>> findAll();

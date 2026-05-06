@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/todo.dart';
+import '../todo.dart';
 
 class FilterTabBar extends StatelessWidget {
   const FilterTabBar({

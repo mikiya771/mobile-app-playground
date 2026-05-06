@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../providers/todo_list_provider.dart';
+import '../todo_list_provider.dart';
 import '../widgets/todo_list.dart';
 
 class TodoListPage extends ConsumerWidget {

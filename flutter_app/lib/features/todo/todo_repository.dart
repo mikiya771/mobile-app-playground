@@ -1,6 +1,6 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import '../models/todo.dart';
+import 'todo.dart';
 import 'todo_repository_interface.dart';
 
 class TodoRepository implements TodoRepositoryInterface {

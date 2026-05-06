@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/todo.dart';
+import '../todo.dart';
 
 class PriorityBadge extends StatelessWidget {
   const PriorityBadge({super.key, required this.priority});
