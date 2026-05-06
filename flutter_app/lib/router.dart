@@ -5,6 +5,7 @@ import 'features/auth/auth_provider.dart';
 import 'features/auth/pages/login_page.dart';
 import 'features/todo/pages/todo_list_page.dart';
 import 'features/todo/pages/todo_detail_page.dart';
+import 'features/webview/pages/web_view_page.dart';
 
 // authProvider の変化を GoRouter に伝えるアダプター
 class _RouterRefreshNotifier extends ChangeNotifier {
@@ -40,6 +41,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/todos/:id',
         builder: (context, state) =>
             TodoDetailPage(todoId: state.pathParameters['id']!),
+      ),
+      GoRoute(
+        path: '/webview',
+        builder: (context, state) {
+          final url = state.uri.queryParameters['url'] ?? '';
+          return WebViewPage(url: url);
+        },
       ),
     ],
   );

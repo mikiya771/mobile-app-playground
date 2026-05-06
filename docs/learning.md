@@ -15,7 +15,7 @@
 - [x] Step 7: sqflite で CRUD を実装する / Riverpod + MVVM + Clean Architecture 導入
 - [x] Step 8: 一覧 → 詳細WebView → 編集フォームを繋ぐ（go_router）
 - [x] Step 9: AuthGuard を追加する
-- [ ] Step 10: JSONPlaceholder から Todo を取得・同期する（dio）
+- [x] Step 10: JSONPlaceholder から Todo を取得・同期する（dio）
 - [ ] Step 11: webview_flutter で Todo 詳細ページを表示する
 - [ ] Step 12: ホワイトリスト制御を実装する
 - [ ] Step 13: ログイン画面（WebView + JS Bridge）
@@ -969,6 +969,153 @@ features/todo/
       todo_dto.dart                 ← 新規: API レスポンスの DTO + DataMapper
   ...
 ```
+
+---
+
+### Step 11: webview_flutter で WebView を表示する
+
+#### webview_flutter とは
+
+Flutter 公式の WebView パッケージ。iOS は `WKWebView`、Android は `WebView` をそれぞれネイティブで使い、Flutter Widget として扱える。
+
+```dart
+WebViewWidget(controller: controller)
+```
+
+`WebViewController` でナビゲーション・JS 実行・ページ読み込みを制御する。
+
+#### 基本的な使い方
+
+```dart
+final controller = WebViewController()
+  ..setJavaScriptMode(JavaScriptMode.unrestricted)
+  ..loadRequest(Uri.parse('https://example.com'));
+
+// Widget として埋め込む
+WebViewWidget(controller: controller)
+```
+
+`WebViewController` はウィジェットのライフサイクルと独立して生存できる。`StatefulWidget` の `State` で初期化するか、Riverpod の `Provider` で管理する。
+
+#### ナビゲーションの制御（`NavigationDelegate`）
+
+ページ遷移の前後に処理を挟める。ホワイトリスト制御（Step 12）はここで実装する。
+
+```dart
+controller.setNavigationDelegate(NavigationDelegate(
+  onPageStarted: (url) { /* ローディング開始 */ },
+  onPageFinished: (url) { /* ローディング完了 */ },
+  onNavigationRequest: (request) {
+    // true を返すと遷移許可、false で遷移キャンセル
+    if (request.url.startsWith('https://myapp.com')) {
+      return NavigationDecision.navigate;
+    }
+    return NavigationDecision.prevent;  // ← ホワイトリスト外はブロック
+  },
+));
+```
+
+#### JS Bridge（Flutter ↔ WebView 通信）
+
+WebView 内の JavaScript と Flutter が双方向に通信できる。Step 13 のログイン実装で使う。
+
+```dart
+// Flutter → JS
+controller.runJavaScript('window.postMessage("hello", "*")');
+
+// JS → Flutter（JavaScriptChannel）
+controller.addJavaScriptChannel(
+  'FlutterBridge',
+  onMessageReceived: (message) {
+    // WebView 内の JS から FlutterBridge.postMessage("data") で受信
+    print(message.message);
+  },
+);
+```
+
+#### `WebViewController` の置き場所
+
+`WebViewController` は非同期で初期化されるため、`StatefulWidget` の `initState()` で作成するか、Riverpod の `Provider` で管理する。
+
+```dart
+// StatefulWidget パターン（シンプルなケース）
+class _WebViewPageState extends State<WebViewPage> {
+  late final WebViewController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..loadRequest(Uri.parse(widget.url));
+  }
+}
+```
+
+`WebViewController` はページ固有の状態なので `StatefulWidget` で持つのが自然。ビジネスロジックを含まないため Notifier に上げる必要はない。
+
+#### ローディング表示パターン
+
+WebView のロードが完了するまでインジケーターを表示する。`StatefulWidget` でローカル状態として管理する典型例。
+
+```dart
+class _WebViewPageState extends State<WebViewPage> {
+  bool _isLoading = true;  // UIローカル状態 → StatefulWidget が持つ
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        WebViewWidget(controller: _controller),
+        if (_isLoading)
+          const Center(child: CircularProgressIndicator()),
+      ],
+    );
+  }
+}
+```
+
+`_isLoading` は WebView のロード状態という UI ローカル状態。Notifier に上げる必要はない（アーキテクチャ方針通り）。
+
+#### iOS の設定（Info.plist）
+
+HTTP（非 HTTPS）の URL を許可する場合は `Info.plist` に設定が必要。今回は HTTPS のみ使うので不要。
+
+```xml
+<!-- HTTP を許可する場合のみ（今回は不要） -->
+<key>NSAppTransportSecurity</key>
+<dict>
+  <key>NSAllowsArbitraryLoads</key>
+  <true/>
+</dict>
+```
+
+#### ベストプラクティス
+
+| 項目 | 推奨 | 理由 |
+|---|---|---|
+| `WebViewController` の置き場所 | `StatefulWidget.initState()` | ページ固有の UI 状態。Notifier に上げる必要なし |
+| ローディング状態 | Widget ローカル状態（`_isLoading`） | UIローカル状態の典型例 |
+| JS 有効化 | 必要な場合のみ `unrestricted` | セキュリティリスクを最小化 |
+| 外部リンク | `NavigationDelegate` でブロック | ホワイトリスト外への遷移を防ぐ |
+| バック操作 | `controller.canGoBack()` で確認 | WebView 内の戻るとアプリの戻るを区別 |
+| URL のバリデーション | `Uri.tryParse()` で null チェック | 不正 URL でのクラッシュを防ぐ |
+
+#### 今回の実装スコープ
+
+既存の `TodoDetailPage`（Flutter ネイティブ UI）に加えて、WebView を使ったページを新設する。
+
+```
+routes:
+  /todos/:id          → TodoDetailPage（Flutter UI・既存）
+  /webview?url=...    → WebViewPage（新規）
+
+TodoDetailPage の AppBar に「Web で開く」ボタン
+  → context.push('/webview?url=https://jsonplaceholder.typicode.com/todos/:id')
+    → WebViewPage で表示
+```
+
+`WebViewPage` は URL をクエリパラメータで受け取る汎用ページとして実装。Step 12 以降のホワイトリスト・ログインでも再利用する。
 
 ---
 

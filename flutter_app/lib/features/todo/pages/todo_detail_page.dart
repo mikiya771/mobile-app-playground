@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../todo.dart';
 import '../todo_list_provider.dart';
 
@@ -27,6 +28,14 @@ class TodoDetailPage extends ConsumerWidget {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('詳細'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.open_in_browser),
+            tooltip: 'Web で開く',
+            onPressed: () {
+              final url = 'https://jsonplaceholder.typicode.com/todos/${todo.id}';
+              context.push('/webview?url=${Uri.encodeComponent(url)}');
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.edit),
             onPressed: () => _showEditDialog(context, todo, notifier),
