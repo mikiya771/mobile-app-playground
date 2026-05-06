@@ -11,6 +11,7 @@ class TodoList extends StatelessWidget {
     required this.onFilterChange,
     required this.onToggle,
     required this.onDelete,
+    required this.onTap,
   });
 
   final List<Todo> todos;
@@ -18,6 +19,7 @@ class TodoList extends StatelessWidget {
   final void Function(TodoFilter) onFilterChange;
   final void Function(String id) onToggle;
   final void Function(String id) onDelete;
+  final void Function(String id) onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +38,7 @@ class TodoList extends StatelessWidget {
               todo: todos[index],
               onToggle: onToggle,
               onDelete: onDelete,
+              onTap: onTap,
             ),
           ),
         ),

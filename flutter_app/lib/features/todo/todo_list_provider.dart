@@ -71,6 +71,24 @@ class TodoListNotifier extends Notifier<TodoListState> {
     state = state.copyWith(todos: [...state.todos, todo]);
   }
 
+  Future<void> edit(
+    String id, {
+    required String title,
+    required String description,
+    required TodoPriority priority,
+  }) async {
+    final todo = state.todos.firstWhere((t) => t.id == id);
+    final updated = todo.copyWith(
+      title: title,
+      description: description,
+      priority: priority,
+    );
+    await _repo.update(updated);
+    state = state.copyWith(
+      todos: state.todos.map((t) => t.id == id ? updated : t).toList(),
+    );
+  }
+
   Future<void> delete(String id) async {
     await _repo.delete(id);
     state = state.copyWith(

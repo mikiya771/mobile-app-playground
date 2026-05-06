@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../todo_list_provider.dart';
 import '../widgets/todo_list.dart';
 
@@ -24,6 +25,7 @@ class TodoListPage extends ConsumerWidget {
               onFilterChange: notifier.changeFilter,
               onToggle: notifier.toggle,
               onDelete: notifier.delete,
+              onTap: (id) => context.push('/todos/$id'),
             ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddDialog(context, ref),

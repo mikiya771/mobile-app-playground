@@ -427,6 +427,250 @@ GestureDetector(
 
 ---
 
+## Phase 2: アーキテクチャと状態管理
+
+### Step 7: sqflite + Riverpod + MVVM + Clean Architecture
+
+#### sqflite による永続化
+
+`sqflite` は Flutter の SQLite ラッパー。iOS/Android どちらでも動作する。
+
+```dart
+// DB を開く（なければ onCreate で作成）
+final db = await openDatabase(
+  join(await getDatabasesPath(), 'todo.db'),
+  version: 1,
+  onCreate: (db, _) => db.execute('CREATE TABLE todos (...)'),
+);
+
+// CRUD
+await db.query('todos');                          // SELECT
+await db.insert('todos', row);                   // INSERT
+await db.update('todos', row, where: 'id = ?'); // UPDATE
+await db.delete('todos', where: 'id = ?');      // DELETE
+```
+
+Flutter のモデルクラスは Map に変換して渡す必要がある（`_toRow` / `_fromRow`）。
+
+#### Clean Architecture の3層
+
+```
+Presentation Layer  Widget（View）/ Notifier（ViewModel）
+Domain Layer        Entity（Todo）/ Repository Interface
+Data Layer          Repository 実装（sqflite）
+```
+
+依存の向きは **外 → 内**。Presentation は Domain を知っているが Domain は Presentation を知らない。
+
+```dart
+// Domain Layer: 抽象だけを定義（sqflite を知らない）
+abstract class TodoRepositoryInterface {
+  Future<List<Todo>> findAll();
+  Future<void> insert(Todo todo);
+  Future<void> update(Todo todo);
+  Future<void> delete(String id);
+}
+
+// Data Layer: 実装を提供（sqflite に依存してよい）
+class TodoRepository implements TodoRepositoryInterface { ... }
+```
+
+#### Riverpod を DI コンテナとして使う
+
+```dart
+// Singleton の代わりに Provider で管理
+final todoRepositoryProvider = Provider<TodoRepositoryInterface>((ref) {
+  return TodoRepository();
+});
+```
+
+Singleton は「隠れた依存」でテスト時に差し替えられない。Provider 経由にすることでテスト時に `MockRepository` を注入できる。
+
+```dart
+// テストでの差し替え
+ProviderContainer(overrides: [
+  todoRepositoryProvider.overrideWithValue(InMemoryTodoRepository()),
+])
+```
+
+#### MVVM: Notifier が ViewModel
+
+```
+View（Widget）   ← state を受け取って描画
+ViewModel        ← Notifier。ビジネスロジックを持つ
+Model            ← Entity + Repository
+```
+
+```dart
+class TodoListNotifier extends Notifier<TodoListState> {
+  @override
+  TodoListState build() {
+    _repo = ref.read(todoRepositoryProvider);  // DI
+    _load();                                   // 初期データ取得
+    return const TodoListState();
+  }
+
+  Future<void> toggle(String id) async {
+    // 1. リポジトリを更新
+    await _repo.update(updated);
+    // 2. state を更新（UI が再描画される）
+    state = state.copyWith(todos: ...);
+  }
+}
+```
+
+`build()` は同期で初期 state を返し、非同期処理（`_load()`）はファイアアンドフォーゲットで開始する。
+
+#### State は immutable
+
+```dart
+class TodoListState {
+  const TodoListState({
+    this.todos = const [],
+    this.filter = TodoFilter.all,
+    this.loading = true,
+  });
+
+  // 一部だけ変えた新しいインスタンスを返す
+  TodoListState copyWith({...}) => TodoListState(...);
+}
+```
+
+`state = state.copyWith(...)` で新しいインスタンスを代入することで Riverpod が変化を検知して UI を再描画する。state を直接ミュートすると検知されない。
+
+#### `Dismissible` でスワイプ削除
+
+```dart
+Dismissible(
+  key: ValueKey(todo.id),
+  direction: DismissDirection.endToStart,   // 右 → 左スワイプ
+  background: Container(/* 赤い背景 */),
+  onDismissed: (_) => onDelete(todo.id),
+  child: TodoCard(...),
+)
+```
+
+リストアイテムを左スワイプで削除する UI パターン。`key` には一意な値が必要（id を使う）。
+
+---
+
+### Step 8: go_router で画面遷移を実装する
+
+#### なぜ go_router か
+
+Flutter には画面遷移の仕組みが2世代ある。
+
+| | Navigator 1.0 | Navigator 2.0 / go_router |
+|---|---|---|
+| 遷移方法 | `Navigator.push(context, ...)` | `context.go('/todos/123')` |
+| URL | なし（モバイルでは不要だが Web で困る） | パスベース URL |
+| ディープリンク | 手動実装が必要 | 標準サポート |
+| 戻るボタン制御 | 複雑 | 宣言的に定義できる |
+
+go_router は Navigator 2.0 を使いやすくラップした公式推奨パッケージ。
+
+#### Route 定義
+
+```dart
+final router = GoRouter(
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const TodoListPage(),
+    ),
+    GoRoute(
+      path: '/todos/:id',               // :id がパスパラメータ
+      builder: (context, state) {
+        final id = state.pathParameters['id']!;
+        return TodoDetailPage(todoId: id);
+      },
+    ),
+  ],
+);
+```
+
+React Router の `<Route path="/todos/:id">` と同じ発想。
+
+#### `context.go()` vs `context.push()`
+
+| メソッド | 動作 | 使いどころ |
+|---|---|---|
+| `context.go('/path')` | スタックを置き換える | タブ切り替え・ルートへの移動 |
+| `context.push('/path')` | スタックに積む（戻れる） | 詳細ページへの遷移 |
+| `context.pop()` | 1つ戻る | 詳細から一覧へ戻る |
+
+一覧 → 詳細は `push`（戻るボタンで一覧に戻れる）。
+
+#### `MaterialApp.router` への切り替え
+
+go_router を使うには `MaterialApp` の代わりに `MaterialApp.router` を使う。
+
+```dart
+// Before
+MaterialApp(home: const TodoListPage())
+
+// After
+MaterialApp.router(routerConfig: router)
+```
+
+`home` の代わりに `routerConfig` で GoRouter インスタンスを渡す。
+
+#### アーキテクチャとの関係
+
+ナビゲーション（`context.go()` / `context.push()`）はページ層でのみ行う。
+
+```dart
+// ✅ ページ層でナビゲーション
+// TodoListPage の中
+onTap: (id) => context.push('/todos/$id'),
+
+// ✅ ウィジェット層はコールバックを呼ぶだけ
+// TodoCard の中
+onTap: () => onTap(todo.id),   // context.push は知らない
+```
+
+ウィジェット層が `context.go()` を直接呼ぶと、そのウィジェットが特定のルート構造に依存してしまい再利用できなくなる。
+
+#### パスパラメータで id を渡す設計
+
+```
+/todos/abc-123
+         ↑
+         todo.id（UUID）を URL に埋め込む
+```
+
+`TodoDetailPage` は id だけ受け取り、`ref.watch(todoListProvider)` から該当 Todo を探す。
+
+```dart
+class TodoDetailPage extends ConsumerWidget {
+  const TodoDetailPage({super.key, required this.todoId});
+  final String todoId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final todo = ref.watch(todoListProvider)
+        .todos
+        .firstWhere((t) => t.id == todoId);
+    ...
+  }
+}
+```
+
+State を引数として渡さず、id だけを渡して Provider から引く設計。こうすることで詳細ページが一覧の状態変更を自動的に反映できる。
+
+#### 今回の実装スコープ
+
+```
+TodoListPage（一覧）
+  ├── Todo カードをタップ → context.push('/todos/:id')
+  └── TodoDetailPage（詳細）
+        ├── タイトル・説明・優先度を表示
+        ├── 編集ボタン → ダイアログで title / description / priority を編集
+        └── 戻るボタン → context.pop()
+```
+
+---
+
 ## セットアップメモ
 
 - プロジェクト: `flutter_app/`（`--platforms ios,android` で作成）

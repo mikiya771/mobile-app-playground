@@ -8,11 +8,13 @@ class TodoCard extends StatelessWidget {
     required this.todo,
     required this.onToggle,
     required this.onDelete,
+    required this.onTap,
   });
 
   final Todo todo;
   final void Function(String id) onToggle;
   final void Function(String id) onDelete;
+  final void Function(String id) onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +33,10 @@ class TodoCard extends StatelessWidget {
       ),
       onDismissed: (_) => onDelete(todo.id),
       child: Card(
-        child: Padding(
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => onTap(todo.id),
+          child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           child: Row(
             children: [
@@ -78,6 +83,7 @@ class TodoCard extends StatelessWidget {
               PriorityBadge(priority: todo.priority),
             ],
           ),
+        ),
         ),
       ),
     );
