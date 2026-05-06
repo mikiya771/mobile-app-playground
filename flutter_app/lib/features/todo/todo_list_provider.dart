@@ -11,12 +11,10 @@ class TodoListState {
   const TodoListState({
     this.todos = const [],
     this.filter = TodoFilter.all,
-    this.loading = true,
   });
 
   final List<Todo> todos;
   final TodoFilter filter;
-  final bool loading;
 
   List<Todo> get filteredTodos => switch (filter) {
         TodoFilter.all => todos,
@@ -27,48 +25,43 @@ class TodoListState {
   TodoListState copyWith({
     List<Todo>? todos,
     TodoFilter? filter,
-    bool? loading,
   }) =>
       TodoListState(
         todos: todos ?? this.todos,
         filter: filter ?? this.filter,
-        loading: loading ?? this.loading,
       );
 }
 
 // ── ViewModel ────────────────────────────────────────────────────────────────
-class TodoListNotifier extends Notifier<TodoListState> {
+class TodoListNotifier extends AsyncNotifier<TodoListState> {
   late final TodoRepositoryInterface _repo;
 
   @override
-  TodoListState build() {
+  Future<TodoListState> build() async {
     _repo = ref.read(todoRepositoryProvider);
-    _load();
-    return const TodoListState();
-  }
-
-  Future<void> _load() async {
     final todos = await _repo.findAll();
-    state = state.copyWith(todos: todos, loading: false);
+    return TodoListState(todos: todos);
   }
 
   Future<void> toggle(String id) async {
-    final todo = state.todos.firstWhere((t) => t.id == id);
+    final current = state.requireValue;
+    final todo = current.todos.firstWhere((t) => t.id == id);
     final updated = todo.copyWith(isCompleted: !todo.isCompleted);
     await _repo.update(updated);
-    state = state.copyWith(
-      todos: state.todos.map((t) => t.id == id ? updated : t).toList(),
-    );
+    state = AsyncData(current.copyWith(
+      todos: current.todos.map((t) => t.id == id ? updated : t).toList(),
+    ));
   }
 
   Future<void> add(String title) async {
+    final current = state.requireValue;
     final todo = Todo(
       id: _uuid.v4(),
       title: title,
       createdAt: DateTime.now(),
     );
     await _repo.insert(todo);
-    state = state.copyWith(todos: [...state.todos, todo]);
+    state = AsyncData(current.copyWith(todos: [...current.todos, todo]));
   }
 
   Future<void> edit(
@@ -77,30 +70,33 @@ class TodoListNotifier extends Notifier<TodoListState> {
     required String description,
     required TodoPriority priority,
   }) async {
-    final todo = state.todos.firstWhere((t) => t.id == id);
+    final current = state.requireValue;
+    final todo = current.todos.firstWhere((t) => t.id == id);
     final updated = todo.copyWith(
       title: title,
       description: description,
       priority: priority,
     );
     await _repo.update(updated);
-    state = state.copyWith(
-      todos: state.todos.map((t) => t.id == id ? updated : t).toList(),
-    );
+    state = AsyncData(current.copyWith(
+      todos: current.todos.map((t) => t.id == id ? updated : t).toList(),
+    ));
   }
 
   Future<void> delete(String id) async {
+    final current = state.requireValue;
     await _repo.delete(id);
-    state = state.copyWith(
-      todos: state.todos.where((t) => t.id != id).toList(),
-    );
+    state = AsyncData(current.copyWith(
+      todos: current.todos.where((t) => t.id != id).toList(),
+    ));
   }
 
   void changeFilter(TodoFilter filter) {
-    state = state.copyWith(filter: filter);
+    final current = state.requireValue;
+    state = AsyncData(current.copyWith(filter: filter));
   }
 }
 
 // ── Provider ─────────────────────────────────────────────────────────────────
 final todoListProvider =
-    NotifierProvider<TodoListNotifier, TodoListState>(TodoListNotifier.new);
+    AsyncNotifierProvider<TodoListNotifier, TodoListState>(TodoListNotifier.new);

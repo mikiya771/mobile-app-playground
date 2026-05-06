@@ -9,7 +9,7 @@ class TodoListPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(todoListProvider);
+    final asyncState = ref.watch(todoListProvider);
     final notifier = ref.read(todoListProvider.notifier);
 
     return Scaffold(
@@ -17,16 +17,18 @@ class TodoListPage extends ConsumerWidget {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: const Text('TODO リスト'),
       ),
-      body: state.loading
-          ? const Center(child: CircularProgressIndicator())
-          : TodoList(
-              todos: state.filteredTodos,
-              selectedFilter: state.filter,
-              onFilterChange: notifier.changeFilter,
-              onToggle: notifier.toggle,
-              onDelete: notifier.delete,
-              onTap: (id) => context.push('/todos/$id'),
-            ),
+      body: asyncState.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(child: Text('エラー: $e')),
+        data: (state) => TodoList(
+          todos: state.filteredTodos,
+          selectedFilter: state.filter,
+          onFilterChange: notifier.changeFilter,
+          onToggle: notifier.toggle,
+          onDelete: notifier.delete,
+          onTap: (id) => context.push('/todos/$id'),
+        ),
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddDialog(context, ref),
         tooltip: '追加',

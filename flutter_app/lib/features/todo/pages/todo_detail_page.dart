@@ -10,10 +10,17 @@ class TodoDetailPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final todo = ref.watch(todoListProvider).todos.firstWhere(
-          (t) => t.id == todoId,
-        );
+    final todo = ref
+        .watch(todoListProvider)
+        .valueOrNull
+        ?.todos
+        .where((t) => t.id == todoId)
+        .firstOrNull;
     final notifier = ref.read(todoListProvider.notifier);
+
+    if (todo == null) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
     return Scaffold(
       appBar: AppBar(
