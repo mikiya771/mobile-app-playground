@@ -46,9 +46,8 @@ class TodoListViewController: UIViewController {
 
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "showDetail",
-           let nav = segue.destination as? UINavigationController,
-           let vc = nav.topViewController as? TodoDetailViewController {
-            vc.todoId = (sender as? Todo)?.id ?? ""
+           let vc = segue.destination as? TodoDetailViewController {
+            vc.todo = sender as? Todo
         }
         if segue.identifier == "showForm",
            let nav = segue.destination as? UINavigationController,
