@@ -6,7 +6,7 @@
 
 ## 進捗
 
-- [ ] Step 1: Activity と ViewBinding を読む
+- [x] Step 1: Activity と ViewBinding を読む
 - [ ] Step 2: RecyclerView + ListAdapter を実装する
 - [ ] Step 3: ConstraintLayout でレイアウトを組む
 - [ ] Step 4: モデルクラス Todo を作る
