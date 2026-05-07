@@ -1,7 +1,9 @@
 package com.example.androidxml.features.todo
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -37,6 +39,21 @@ class TodoAdapter(
 
         fun bind(todo: Todo) {
             binding.titleText.text = todo.title
+
+            if (todo.description.isNotBlank()) {
+                binding.descriptionText.text = todo.description
+                binding.descriptionText.visibility = View.VISIBLE
+            } else {
+                binding.descriptionText.visibility = View.GONE
+            }
+
+            // PriorityBadge
+            binding.priorityBadge.text = todo.priority.label
+            binding.priorityBadge.backgroundTintList = ContextCompat.getColorStateList(
+                binding.root.context, todo.priority.colorRes
+            )
+
+            // チェックアイコン
             binding.checkIcon.alpha = if (todo.isCompleted) 1f else 0.3f
         }
     }
