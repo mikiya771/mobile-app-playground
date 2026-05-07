@@ -32,6 +32,7 @@
 		A212F3EF649C6CA1D76B8697 /* TodoRemoteDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68E27EDE51DC5FF2675BA8D6 /* TodoRemoteDataSource.swift */; };
 		BBCA2EF9C9C8A8EDC48823CB /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4D961032DA82DC75F10D54D /* LoginView.swift */; };
 		C58A2D6E9DFB053F7E48CC6B /* PriorityBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4573C8CD1B555DD9F4DBD155 /* PriorityBadge.swift */; };
+		C8D7B4C1935C4AD629A3B893 /* TokenStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE1A770C6AA42A51FB887E32 /* TokenStorage.swift */; };
 		E958C34576A0F645A88F6B99 /* WebViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE17168C176C7195FEB90E91 /* WebViewRepresentable.swift */; };
 		ED22287807C48D6851003C18 /* LoginWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81E4CF2326479635761E81FF /* LoginWebView.swift */; };
 		FF829A8EA6A62788AD4D1220 /* TodoAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0572A6928639398CA5236A8 /* TodoAppTests.swift */; };
@@ -79,6 +80,7 @@
 		EADA213F4541B61585756D49 /* TodoApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TodoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EE17168C176C7195FEB90E91 /* WebViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewRepresentable.swift; sourceTree = "<group>"; };
 		F9EA10D7D38EC2127F5D4CBB /* TodoItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItem.swift; sourceTree = "<group>"; };
+		FE1A770C6AA42A51FB887E32 /* TokenStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStorage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -194,6 +196,7 @@
 			isa = PBXGroup;
 			children = (
 				0F1C6D0349DC1F0D71C9C685 /* AuthViewModel.swift */,
+				FE1A770C6AA42A51FB887E32 /* TokenStorage.swift */,
 				20C1CAC18A4C15402BC3BC6B /* Views */,
 			);
 			path = Auth;
@@ -379,6 +382,7 @@
 				A212F3EF649C6CA1D76B8697 /* TodoRemoteDataSource.swift in Sources */,
 				3D45925AEC3ED0B464E85059 /* TodoRepository.swift in Sources */,
 				5D1B8F896135D6EC968F06B0 /* TodoRepositoryInterface.swift in Sources */,
+				C8D7B4C1935C4AD629A3B893 /* TokenStorage.swift in Sources */,
 				111F91E8427D05D6A184935C /* WebViewConfig.swift in Sources */,
 				E958C34576A0F645A88F6B99 /* WebViewRepresentable.swift in Sources */,
 			);

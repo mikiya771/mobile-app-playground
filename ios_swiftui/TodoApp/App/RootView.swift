@@ -28,6 +28,7 @@ struct RootView: View {
         }
         .environment(router)
         .environment(authViewModel)
+        .task { authViewModel.initialize() }
     }
 
     private func makeRepository() -> TodoRepositoryInterface {
