@@ -14,6 +14,9 @@ class TodoDetailViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         title = "詳細"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "Web詳細", style: .plain, target: self, action: #selector(showWebDetail)
+        )
         setupUI()
         configure()
     }
@@ -46,6 +49,12 @@ class TodoDetailViewController: UIViewController {
             dateLabel.topAnchor.constraint(equalTo: descLabel.bottomAnchor, constant: 12),
             dateLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
         ])
+    }
+
+    @objc private func showWebDetail() {
+        let vc = TodoWebViewController()
+        vc.todo = todo
+        navigationController?.pushViewController(vc, animated: true)
     }
 
     private func configure() {
