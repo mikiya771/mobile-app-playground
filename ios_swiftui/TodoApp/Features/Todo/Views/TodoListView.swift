@@ -1,64 +1,88 @@
 import SwiftUI
 
-// Step 5 & 6: List + swipeActions + toggle
-// Flutter の TodoListPage に相当（ViewModel なし、サンプルデータで動作確認）
 struct TodoListView: View {
-    @State private var todos = Todo.samples
-    @State private var filter: TodoFilter = .all
-
-    private var filteredTodos: [Todo] {
-        switch filter {
-        case .all: todos
-        case .active: todos.filter { !$0.isCompleted }
-        case .completed: todos.filter { $0.isCompleted }
-        }
-    }
+    @State var viewModel: TodoListViewModel
+    @State private var showForm = false
+    @State private var editingTodo: Todo? = nil
 
     var body: some View {
+        Group {
+            if viewModel.isLoading {
+                ProgressView()
+            } else {
+                list
+            }
+        }
+        .navigationTitle("Todo")
+        .toolbar { toolbar }
+        .sheet(isPresented: $showForm) {
+            TodoFormView(editingTodo: editingTodo) { todo in
+                Task { await viewModel.saveTodo(todo) }
+            }
+        }
+        .alert("エラー", isPresented: Binding(
+            get: { viewModel.errorMessage != nil },
+            set: { if !$0 { viewModel.errorMessage = nil } }
+        )) {
+            Button("OK") { viewModel.errorMessage = nil }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
+        }
+        .task { await viewModel.load() }
+    }
+
+    private var list: some View {
         List {
-            ForEach(filteredTodos) { todo in
+            ForEach(viewModel.filteredTodos) { todo in
                 TodoCard(todo: todo) {
-                    toggle(id: todo.id)
+                    Task { await viewModel.toggle(id: todo.id) }
                 }
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button(role: .destructive) {
-                        delete(id: todo.id)
+                        Task { await viewModel.delete(id: todo.id) }
                     } label: {
                         Label("削除", systemImage: "trash")
                     }
+                }
+                .swipeActions(edge: .leading) {
+                    Button {
+                        editingTodo = todo
+                        showForm = true
+                    } label: {
+                        Label("編集", systemImage: "pencil")
+                    }
+                    .tint(.blue)
                 }
             }
         }
         .listStyle(.plain)
         .safeAreaInset(edge: .top, spacing: 0) {
-            FilterTabBar(selection: $filter)
+            FilterTabBar(selection: $viewModel.filter)
                 .padding(.vertical, 8)
                 .background(.bar)
         }
-        .navigationTitle("Todo")
-        .toolbar {
-            ToolbarItem(placement: .primaryAction) {
-                Button {
-                    // Step 8 でフォームに繋ぐ
-                } label: {
-                    Image(systemName: "plus")
+    }
+
+    @ToolbarContentBuilder
+    private var toolbar: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Button {
+                editingTodo = nil
+                showForm = true
+            } label: {
+                Image(systemName: "plus")
+            }
+        }
+        ToolbarItem(placement: .secondaryAction) {
+            Button {
+                Task { await viewModel.syncFromAPI() }
+            } label: {
+                if viewModel.isSyncing {
+                    ProgressView().scaleEffect(0.8)
+                } else {
+                    Label("API同期", systemImage: "arrow.triangle.2.circlepath")
                 }
             }
         }
-    }
-
-    private func toggle(id: String) {
-        guard let i = todos.firstIndex(where: { $0.id == id }) else { return }
-        todos[i].isCompleted.toggle()
-    }
-
-    private func delete(id: String) {
-        todos.removeAll { $0.id == id }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        TodoListView()
     }
 }
