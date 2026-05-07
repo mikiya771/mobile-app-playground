@@ -1,0 +1,22 @@
+package com.example.androidxml.features.todo
+
+import androidx.lifecycle.LiveData
+import com.example.androidxml.features.todo.data.local.TodoLocalDataSource
+import com.example.androidxml.features.todo.data.remote.TodoRemoteDataSource
+import com.example.androidxml.features.todo.data.remote.toEntity
+
+class TodoRepository(
+    private val local: TodoLocalDataSource,
+    private val remote: TodoRemoteDataSource = TodoRemoteDataSource(),
+) : TodoRepositoryInterface {
+    override fun observeAll(): LiveData<List<Todo>> = local.observeAll()
+    override suspend fun insert(todo: Todo) = local.insert(todo)
+    override suspend fun update(todo: Todo) = local.update(todo)
+    override suspend fun delete(id: String) = local.delete(id)
+
+    override suspend fun sync() {
+        val dtos = remote.fetchAll()
+        val existing = local.findAllIds().toSet()
+        dtos.filter { "api_${it.id}" !in existing }.forEach { local.insert(it.toEntity()) }
+    }
+}
