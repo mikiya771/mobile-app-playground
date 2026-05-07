@@ -17,7 +17,7 @@
 - [x] Step 10: JSONPlaceholder から Todo を取得・同期する（Ktor Client）
 - [x] Step 11: AndroidView で WebView を表示する
 - [x] Step 12: ホワイトリスト制御を実装する
-- [ ] Step 13: ログイン画面（WebView + JavaScript Interface）
+- [x] Step 13: ログイン画面（WebView + JavaScript Interface）
 - [ ] Step 14: EncryptedSharedPreferences でトークン管理・AuthGuard
 - [ ] Step 15: OAuth フロー（Chrome Custom Tabs）
 
