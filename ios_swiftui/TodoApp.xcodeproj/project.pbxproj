@@ -7,11 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		625792C15C3037DAD19270BB /* TodoListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83429047FA6824CC9CE915E7 /* TodoListView.swift */; };
 		637F9285A67372A386CF0072 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 088FFDE4540F108A28893E4A /* ContentView.swift */; };
+		772B4F079658CEA623C109F1 /* TodoCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 565CE86EF4C125716D0B7C49 /* TodoCard.swift */; };
 		77469786A9620740AFA95B61 /* StatePlayground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D3E0BDA85BEFAF98237D455 /* StatePlayground.swift */; };
+		7B3C633292ED708FC13CC676 /* FilterTabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 824F1972F3200351E0540713 /* FilterTabBar.swift */; };
 		8A2E7FAD7F53DF5A9AF22EF4 /* LayoutPlayground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0055B1211553129DF81441CA /* LayoutPlayground.swift */; };
 		9D1953EFA56D7E286140C7FB /* Todo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1FEAD669D8C332A158D9A2 /* Todo.swift */; };
 		A0E727868CD330FA0B5BF2EA /* TodoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC5E930A1D8090610CF5DBB6 /* TodoApp.swift */; };
+		C58A2D6E9DFB053F7E48CC6B /* PriorityBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4573C8CD1B555DD9F4DBD155 /* PriorityBadge.swift */; };
 		FF829A8EA6A62788AD4D1220 /* TodoAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0572A6928639398CA5236A8 /* TodoAppTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -30,8 +34,12 @@
 		088FFDE4540F108A28893E4A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		0D3E0BDA85BEFAF98237D455 /* StatePlayground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatePlayground.swift; sourceTree = "<group>"; };
 		20202EB39E9DC75329379E10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		4573C8CD1B555DD9F4DBD155 /* PriorityBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriorityBadge.swift; sourceTree = "<group>"; };
 		4C372423DB2F2E1F9E426922 /* TodoAppTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TodoAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		565CE86EF4C125716D0B7C49 /* TodoCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoCard.swift; sourceTree = "<group>"; };
 		7D1FEAD669D8C332A158D9A2 /* Todo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Todo.swift; sourceTree = "<group>"; };
+		824F1972F3200351E0540713 /* FilterTabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterTabBar.swift; sourceTree = "<group>"; };
+		83429047FA6824CC9CE915E7 /* TodoListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListView.swift; sourceTree = "<group>"; };
 		AC5E930A1D8090610CF5DBB6 /* TodoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoApp.swift; sourceTree = "<group>"; };
 		E0572A6928639398CA5236A8 /* TodoAppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoAppTests.swift; sourceTree = "<group>"; };
 		EADA213F4541B61585756D49 /* TodoApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TodoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -70,6 +78,8 @@
 			isa = PBXGroup;
 			children = (
 				7D1FEAD669D8C332A158D9A2 /* Todo.swift */,
+				EE1D8A84C7483580E86B7FF2 /* Components */,
+				9E832602A9E502F78AE21B39 /* Views */,
 			);
 			path = Todo;
 			sourceTree = "<group>";
@@ -91,6 +101,14 @@
 			path = TodoAppTests;
 			sourceTree = "<group>";
 		};
+		9E832602A9E502F78AE21B39 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				83429047FA6824CC9CE915E7 /* TodoListView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
 		CDB72C2C587429D24024C571 /* Debug */ = {
 			isa = PBXGroup;
 			children = (
@@ -107,6 +125,16 @@
 				AC5E930A1D8090610CF5DBB6 /* TodoApp.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		EE1D8A84C7483580E86B7FF2 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				824F1972F3200351E0540713 /* FilterTabBar.swift */,
+				4573C8CD1B555DD9F4DBD155 /* PriorityBadge.swift */,
+				565CE86EF4C125716D0B7C49 /* TodoCard.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -190,10 +218,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				637F9285A67372A386CF0072 /* ContentView.swift in Sources */,
+				7B3C633292ED708FC13CC676 /* FilterTabBar.swift in Sources */,
 				8A2E7FAD7F53DF5A9AF22EF4 /* LayoutPlayground.swift in Sources */,
+				C58A2D6E9DFB053F7E48CC6B /* PriorityBadge.swift in Sources */,
 				77469786A9620740AFA95B61 /* StatePlayground.swift in Sources */,
 				9D1953EFA56D7E286140C7FB /* Todo.swift in Sources */,
 				A0E727868CD330FA0B5BF2EA /* TodoApp.swift in Sources */,
+				772B4F079658CEA623C109F1 /* TodoCard.swift in Sources */,
+				625792C15C3037DAD19270BB /* TodoListView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
