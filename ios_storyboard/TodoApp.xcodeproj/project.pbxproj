@@ -18,6 +18,7 @@
 		84765C2F64C54C6AFA00AC59 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 672FC3E7FEC1DFE53590C134 /* AppDelegate.swift */; };
 		902E9FD5FF06AAB36358F7BD /* AuthRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB8D613D5F53FFE4C2846C92 /* AuthRouter.swift */; };
 		9381A927BF5DE55A5EA722F4 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D41EFFDE2ADE0B9BCF5F726 /* SceneDelegate.swift */; };
+		9B8D9B69392E3E95BB331420 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0F1C6D0349DC1F0D71C9C685 /* AuthViewModel.swift */; };
 		9D1953EFA56D7E286140C7FB /* Todo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1FEAD669D8C332A158D9A2 /* Todo.swift */; };
 		A03ED53C6259EE05975EFE3F /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 260B166056F3B7CF41D08176 /* LoginViewController.swift */; };
 		A0BE5498AC2598D2BECB45EE /* PriorityBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F03283F8AF89597E39070F /* PriorityBadgeView.swift */; };
@@ -41,6 +42,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0F1C6D0349DC1F0D71C9C685 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
 		12B5DDB2759D3D1BAC64308E /* TodoEntity+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TodoEntity+Extensions.swift"; sourceTree = "<group>"; };
 		14F03283F8AF89597E39070F /* PriorityBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriorityBadgeView.swift; sourceTree = "<group>"; };
 		1511EF9DA6EB6A439ECC8D77 /* TodoRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoRepository.swift; sourceTree = "<group>"; };
@@ -161,6 +163,7 @@
 		8417808C48D20312DC5DBF5D /* Auth */ = {
 			isa = PBXGroup;
 			children = (
+				0F1C6D0349DC1F0D71C9C685 /* AuthViewModel.swift */,
 				260B166056F3B7CF41D08176 /* LoginViewController.swift */,
 				E0EA4316C338010AA6F118CE /* LoginWebViewController.swift */,
 			);
@@ -315,6 +318,7 @@
 			files = (
 				84765C2F64C54C6AFA00AC59 /* AppDelegate.swift in Sources */,
 				902E9FD5FF06AAB36358F7BD /* AuthRouter.swift in Sources */,
+				9B8D9B69392E3E95BB331420 /* AuthViewModel.swift in Sources */,
 				A03ED53C6259EE05975EFE3F /* LoginViewController.swift in Sources */,
 				5F19EA81F3EE2483955E616B /* LoginWebViewController.swift in Sources */,
 				02DC7D9D7CF86125DB275B5B /* PersistenceController.swift in Sources */,

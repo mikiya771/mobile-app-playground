@@ -9,15 +9,19 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         options connectionOptions: UIScene.ConnectionOptions
     ) {
         guard let windowScene = scene as? UIWindowScene else { return }
-        // Step 14 でここを Keychain チェックに置き換える
-        // 現時点では Main.storyboard の Initial VC（LoginVC）が起動する
         window = UIWindow(windowScene: windowScene)
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        window?.rootViewController = storyboard.instantiateInitialViewController()
         window?.makeKeyAndVisible()
+        // Step 9: 起動時に AuthGuard チェック
+        Task { @MainActor in
+            AuthViewModel.shared.initialize()
+            if AuthViewModel.shared.isLoggedIn {
+                showTodoList()
+            } else {
+                showLogin()
+            }
+        }
     }
 
-    // AuthRouter から呼ばれる画面切り替え（Step 9 で使用）
     func showTodoList() {
         guard let window else { return }
         let storyboard = UIStoryboard(name: "Main", bundle: nil)

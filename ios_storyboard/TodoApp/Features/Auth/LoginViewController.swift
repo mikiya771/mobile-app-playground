@@ -56,11 +56,17 @@ class LoginViewController: UIViewController {
 
     @objc @IBAction func loginTapped(_ sender: Any) {
         // Step 13 でこの処理を WebView 遷移に置き換える
-        AuthRouter.showTodoList()
+        Task { @MainActor in
+            AuthViewModel.shared.login(token: "dummy-token")
+            AuthRouter.showTodoList()
+        }
     }
 
     @objc @IBAction func oauthTapped(_ sender: Any) {
         // Step 15 で ASWebAuthenticationSession に置き換える
-        AuthRouter.showTodoList()
+        Task { @MainActor in
+            AuthViewModel.shared.login(token: "oauth-token")
+            AuthRouter.showTodoList()
+        }
     }
 }

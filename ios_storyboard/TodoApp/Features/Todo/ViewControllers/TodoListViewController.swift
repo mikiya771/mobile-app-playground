@@ -9,6 +9,9 @@ class TodoListViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Todo"
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            title: "ログアウト", style: .plain, target: self, action: #selector(logoutTapped)
+        )
         setupTableView()
         setupFilterBar()
         viewModel.onUpdate = { [weak self] in
@@ -34,6 +37,13 @@ class TodoListViewController: UIViewController {
         bar.items = [UIBarButtonItem(customView: seg)]
         bar.sizeToFit()
         tableView.tableHeaderView = bar
+    }
+
+    @objc private func logoutTapped() {
+        Task { @MainActor in
+            AuthViewModel.shared.logout()
+            AuthRouter.showLogin()
+        }
     }
 
     @objc private func filterChanged(_ sender: UISegmentedControl) {
