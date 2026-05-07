@@ -2,9 +2,15 @@ import UIKit
 import WebKit
 
 // Step 11: WKWebView で Todo 詳細を HTML レンダリング
+// Step 12: WKNavigationDelegate でホワイトリスト制御
 // Flutter の TodoDetailWebView に相当
 class TodoWebViewController: UIViewController {
     var todo: Todo?
+
+    private static let allowedHosts: Set<String> = [
+        "jsonplaceholder.typicode.com",
+        "example.com",
+    ]
 
     private var webView: WKWebView!
 
@@ -17,6 +23,7 @@ class TodoWebViewController: UIViewController {
 
     private func setupWebView() {
         webView = WKWebView()
+        webView.navigationDelegate = self
         webView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(webView)
         NSLayoutConstraint.activate([
@@ -55,3 +62,20 @@ class TodoWebViewController: UIViewController {
         webView.loadHTMLString(html, baseURL: nil)
     }
 }
+
+// MARK: - WKNavigationDelegate (ホワイトリスト)
+extension TodoWebViewController: WKNavigationDelegate {
+    func webView(
+        _ webView: WKWebView,
+        decidePolicyFor navigationAction: WKNavigationAction,
+        decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
+    ) {
+        // loadHTMLString は host が nil → 許可
+        guard let host = navigationAction.request.url?.host else {
+            decisionHandler(.allow)
+            return
+        }
+        decisionHandler(Self.allowedHosts.contains(host) ? .allow : .cancel)
+    }
+}
+
