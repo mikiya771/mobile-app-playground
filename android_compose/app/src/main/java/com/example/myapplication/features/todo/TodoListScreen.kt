@@ -1,6 +1,7 @@
 package com.example.myapplication.features.todo
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,23 +13,32 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
-// Screen 層で変換（モデルに UI を持たせない）
 val TodoPriority.color: Color
     get() = when (this) {
         TodoPriority.LOW    -> Color(0xFF4CAF50)
@@ -46,6 +56,15 @@ val TodoPriority.label: String
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TodoListScreen() {
+    var todos by remember { mutableStateOf(dummyTodos) }
+    var filter by remember { mutableStateOf(TodoFilter.ALL) }
+
+    val filtered = when (filter) {
+        TodoFilter.ALL       -> todos
+        TodoFilter.ACTIVE    -> todos.filter { !it.isCompleted }
+        TodoFilter.COMPLETED -> todos.filter { it.isCompleted }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("TODO") })
@@ -61,27 +80,74 @@ fun TodoListScreen() {
                 .fillMaxSize()
                 .padding(innerPadding),
         ) {
-            FilterTabBar(selected = "ALL", onSelect = {})
+            FilterTabBar(
+                selected = filter,
+                onSelect = { filter = it },
+            )
             LazyColumn {
-                items(dummyTodos, key = { it.id }) { todo ->
-                    TodoCard(todo = todo)
+                items(filtered, key = { it.id }) { todo ->
+                    SwipableTodoCard(
+                        todo = todo,
+                        onToggle = { id ->
+                            todos = todos.map { t ->
+                                if (t.id == id) t.copy(isCompleted = !t.isCompleted) else t
+                            }
+                        },
+                        onDelete = { id ->
+                            todos = todos.filter { t -> t.id != id }
+                        },
+                    )
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FilterTabBar(selected: String, onSelect: (String) -> Unit) {
+fun SwipableTodoCard(
+    todo: Todo,
+    onToggle: (String) -> Unit,
+    onDelete: (String) -> Unit,
+) {
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = { it == SwipeToDismissBoxValue.EndToStart },
+    )
+
+    LaunchedEffect(dismissState.currentValue) {
+        if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+            onDelete(todo.id)
+        }
+    }
+
+    SwipeToDismissBox(
+        state = dismissState,
+        backgroundContent = {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                contentAlignment = Alignment.CenterEnd,
+            ) {
+                Icon(Icons.Default.Delete, contentDescription = "削除", tint = Color.Red)
+            }
+        },
+    ) {
+        TodoCard(todo = todo, onToggle = onToggle)
+    }
+}
+
+@Composable
+fun FilterTabBar(selected: TodoFilter, onSelect: (TodoFilter) -> Unit) {
     Row(modifier = Modifier.fillMaxWidth()) {
-        listOf("ALL", "ACTIVE", "COMPLETED").forEach { label ->
+        TodoFilter.entries.forEach { f ->
             TextButton(
-                onClick = { onSelect(label) },
+                onClick = { onSelect(f) },
                 modifier = Modifier.weight(1f),
             ) {
                 Text(
-                    text = label,
-                    color = if (label == selected) {
+                    text = f.name,
+                    color = if (f == selected) {
                         MaterialTheme.colorScheme.primary
                     } else {
                         MaterialTheme.colorScheme.onSurface
@@ -93,7 +159,7 @@ fun FilterTabBar(selected: String, onSelect: (String) -> Unit) {
 }
 
 @Composable
-fun TodoCard(todo: Todo) {
+fun TodoCard(todo: Todo, onToggle: (String) -> Unit = {}) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -115,11 +181,15 @@ fun TodoCard(todo: Todo) {
                 }
             }
             PriorityBadge(priority = todo.priority)
-            if (todo.isCompleted) {
+            IconButton(onClick = { onToggle(todo.id) }) {
                 Icon(
                     Icons.Default.Check,
-                    contentDescription = "完了",
-                    modifier = Modifier.padding(start = 8.dp),
+                    contentDescription = "完了切替",
+                    tint = if (todo.isCompleted) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
                 )
             }
         }

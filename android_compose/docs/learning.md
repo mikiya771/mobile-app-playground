@@ -10,7 +10,7 @@
 - [x] Step 2: Stateless / Stateful Composable の違いを体感する
 - [ ] Step 3: レイアウト Composable（Column / Row / Box / Modifier）を触る
 - [x] Step 4: モデルクラス Todo を作る
-- [ ] Step 5 & 6: インタラクションを追加する（State hoisting）
+- [x] Step 5 & 6: インタラクションを追加する（State hoisting）
 - [ ] Step 7: Room で CRUD を実装する / ViewModel + MVVM + Clean Architecture 導入
 - [ ] Step 8: 一覧 → 詳細WebView → 編集フォームを繋ぐ（Navigation Compose）
 - [ ] Step 9: AuthGuard を追加する
