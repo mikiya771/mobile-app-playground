@@ -16,6 +16,7 @@
 		9381A927BF5DE55A5EA722F4 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D41EFFDE2ADE0B9BCF5F726 /* SceneDelegate.swift */; };
 		9D1953EFA56D7E286140C7FB /* Todo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D1FEAD669D8C332A158D9A2 /* Todo.swift */; };
 		A03ED53C6259EE05975EFE3F /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 260B166056F3B7CF41D08176 /* LoginViewController.swift */; };
+		A0BE5498AC2598D2BECB45EE /* PriorityBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14F03283F8AF89597E39070F /* PriorityBadgeView.swift */; };
 		A749CA09C5870A08D858FF56 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9E8814370F4604823C34952F /* LaunchScreen.storyboard */; };
 		DAC6226671B9950552DD67EA /* TodoListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD884372F390ABEE2A6892B6 /* TodoListViewController.swift */; };
 		F976249A85269EB7D61722D9 /* TodoDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67FCEB9871F1D580EA376BAB /* TodoDetailViewController.swift */; };
@@ -33,6 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		14F03283F8AF89597E39070F /* PriorityBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriorityBadgeView.swift; sourceTree = "<group>"; };
 		1D41EFFDE2ADE0B9BCF5F726 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		20202EB39E9DC75329379E10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		260B166056F3B7CF41D08176 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
@@ -150,6 +152,7 @@
 		9E832602A9E502F78AE21B39 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				14F03283F8AF89597E39070F /* PriorityBadgeView.swift */,
 				76A471067C98AE6126E5A647 /* TodoTableViewCell.swift */,
 			);
 			path = Views;
@@ -269,6 +272,7 @@
 				902E9FD5FF06AAB36358F7BD /* AuthRouter.swift in Sources */,
 				A03ED53C6259EE05975EFE3F /* LoginViewController.swift in Sources */,
 				5F19EA81F3EE2483955E616B /* LoginWebViewController.swift in Sources */,
+				A0BE5498AC2598D2BECB45EE /* PriorityBadgeView.swift in Sources */,
 				9381A927BF5DE55A5EA722F4 /* SceneDelegate.swift in Sources */,
 				9D1953EFA56D7E286140C7FB /* Todo.swift in Sources */,
 				F976249A85269EB7D61722D9 /* TodoDetailViewController.swift in Sources */,
