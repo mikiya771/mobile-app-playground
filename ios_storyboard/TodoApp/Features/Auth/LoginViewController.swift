@@ -1,18 +1,66 @@
 import UIKit
+import AuthenticationServices
 
-// Step 1: Storyboard ID "LoginVC"
-// Step 2 で IBOutlet / IBAction を追加
-// Step 13 で WebView ログインに置き換え
-// Step 15 で OAuth を追加
+// Step 2: IBAction + コードレイアウト（AutoLayout は Step 3 で整理）
+// Step 13: WebView ログインを showWebLogin Segue に接続
+// Step 15: OAuth を ASWebAuthenticationSession に置き換え
 class LoginViewController: UIViewController {
 
-    @IBAction func loginTapped(_ sender: UIButton) {
-        // Step 13 で WebView 遷移に置き換え
+    // Step 2: ボタンをコードで作成（Storyboard の空 View にのせる）
+    private let titleLabel = UILabel()
+    private let loginButton = UIButton(type: .system)
+    private let oauthButton = UIButton(type: .system)
+    private let stackView = UIStackView()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupUI()
+    }
+
+    private func setupUI() {
+        view.backgroundColor = .systemBackground
+
+        titleLabel.text = "TodoApp"
+        titleLabel.font = .systemFont(ofSize: 32, weight: .bold)
+        titleLabel.textAlignment = .center
+
+        loginButton.setTitle("自社アカウントでログイン", for: .normal)
+        loginButton.backgroundColor = .systemBlue
+        loginButton.setTitleColor(.white, for: .normal)
+        loginButton.layer.cornerRadius = 10
+        loginButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        loginButton.addTarget(self, action: #selector(loginTapped), for: .touchUpInside)
+
+        oauthButton.setTitle("OAuthでログイン", for: .normal)
+        oauthButton.layer.borderColor = UIColor.systemBlue.cgColor
+        oauthButton.layer.borderWidth = 1
+        oauthButton.layer.cornerRadius = 10
+        oauthButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+        oauthButton.addTarget(self, action: #selector(oauthTapped), for: .touchUpInside)
+
+        stackView.axis = .vertical
+        stackView.spacing = 16
+        stackView.addArrangedSubview(titleLabel)
+        stackView.addArrangedSubview(loginButton)
+        stackView.addArrangedSubview(oauthButton)
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stackView)
+
+        NSLayoutConstraint.activate([
+            stackView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            stackView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            stackView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 32),
+            view.safeAreaLayoutGuide.trailingAnchor.constraint(equalTo: stackView.trailingAnchor, constant: 32),
+        ])
+    }
+
+    @objc @IBAction func loginTapped(_ sender: Any) {
+        // Step 13 でこの処理を WebView 遷移に置き換える
         AuthRouter.showTodoList()
     }
 
-    @IBAction func oauthTapped(_ sender: UIButton) {
-        // Step 15 で ASWebAuthenticationSession に置き換え
+    @objc @IBAction func oauthTapped(_ sender: Any) {
+        // Step 15 で ASWebAuthenticationSession に置き換える
         AuthRouter.showTodoList()
     }
 }
