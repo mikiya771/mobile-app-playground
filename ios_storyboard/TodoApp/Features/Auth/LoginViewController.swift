@@ -67,10 +67,37 @@ class LoginViewController: UIViewController {
     @objc private func dismissWebLogin() { dismiss(animated: true) }
 
     @objc @IBAction func oauthTapped(_ sender: Any) {
-        // Step 15 で ASWebAuthenticationSession に置き換える
-        Task { @MainActor in
-            AuthViewModel.shared.login(token: "oauth-token")
-            AuthRouter.showTodoList()
+        // Step 15: ASWebAuthenticationSession で OAuth フロー
+        startOAuthFlow()
+    }
+}
+
+// MARK: - ASWebAuthenticationSession (Step 15)
+extension LoginViewController: ASWebAuthenticationPresentationContextProviding {
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        view.window!
+    }
+
+    func startOAuthFlow() {
+        // デモ用: 実際は認可サーバーの URL を指定
+        guard let authURL = URL(string: "https://example.com/oauth/authorize?client_id=demo&redirect_uri=todoapp://callback&response_type=code") else { return }
+        let session = ASWebAuthenticationSession(
+            url: authURL,
+            callbackURLScheme: "todoapp"
+        ) { callbackURL, error in
+            guard error == nil, let url = callbackURL,
+                  let components = URLComponents(url: url, resolvingAgainstBaseURL: false),
+                  let code = components.queryItems?.first(where: { $0.name == "code" })?.value
+            else { return }
+
+            Task { @MainActor in
+                // 実際はコードをトークンエンドポイントで交換する
+                AuthViewModel.shared.login(token: "oauth-\(code)")
+                AuthRouter.showTodoList()
+            }
         }
+        session.presentationContextProvider = self
+        session.prefersEphemeralWebBrowserSession = true
+        session.start()
     }
 }
