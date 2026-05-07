@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.browser.customtabs.CustomTabsIntent
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -37,7 +39,9 @@ class LoginFragment : Fragment() {
                         authViewModel.loginWithToken(token)
                     },
                     onStartOAuth = {
-                        // Step 15 で Chrome Custom Tabs に差し替え
+                        val uri = "file:///android_asset/oauth/authorize.html".toUri()
+                        CustomTabsIntent.Builder().build()
+                            .launchUrl(requireContext(), uri)
                     },
                 ),
                 "FlutterAuth",

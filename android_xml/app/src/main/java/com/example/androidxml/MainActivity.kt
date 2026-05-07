@@ -1,5 +1,6 @@
 package com.example.androidxml
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -44,6 +45,12 @@ class MainActivity : AppCompatActivity() {
                 navController.navigate(R.id.action_login_to_home)
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        val code = intent.data?.getQueryParameter("code") ?: return
+        authViewModel.handleOAuthCallback(code)
     }
 
     override fun onSupportNavigateUp(): Boolean {
