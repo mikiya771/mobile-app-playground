@@ -27,6 +27,7 @@
 		A212F3EF649C6CA1D76B8697 /* TodoRemoteDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68E27EDE51DC5FF2675BA8D6 /* TodoRemoteDataSource.swift */; };
 		A749CA09C5870A08D858FF56 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9E8814370F4604823C34952F /* LaunchScreen.storyboard */; };
 		C831DDCC5EB33973A0DA9479 /* TodoRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1511EF9DA6EB6A439ECC8D77 /* TodoRepository.swift */; };
+		C8D7B4C1935C4AD629A3B893 /* TokenStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE1A770C6AA42A51FB887E32 /* TokenStorage.swift */; };
 		D25A7CBB1D728D0D8A359AC1 /* TodoApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 8F2B87A46B4C8EF12B81EBD3 /* TodoApp.xcdatamodeld */; };
 		DAC6226671B9950552DD67EA /* TodoListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD884372F390ABEE2A6892B6 /* TodoListViewController.swift */; };
 		DDB8CC9A1D0BB050255CDFD2 /* TodoEntity+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12B5DDB2759D3D1BAC64308E /* TodoEntity+Extensions.swift */; };
@@ -74,6 +75,7 @@
 		E0EA4316C338010AA6F118CE /* LoginWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginWebViewController.swift; sourceTree = "<group>"; };
 		E935BBF58D1FF7CE6C1DBABA /* TodoLocalDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoLocalDataSource.swift; sourceTree = "<group>"; };
 		EADA213F4541B61585756D49 /* TodoApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TodoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FE1A770C6AA42A51FB887E32 /* TokenStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokenStorage.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -191,6 +193,7 @@
 				0F1C6D0349DC1F0D71C9C685 /* AuthViewModel.swift */,
 				260B166056F3B7CF41D08176 /* LoginViewController.swift */,
 				E0EA4316C338010AA6F118CE /* LoginWebViewController.swift */,
+				FE1A770C6AA42A51FB887E32 /* TokenStorage.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -371,6 +374,7 @@
 				03BC6C20693E4AF37AC9762B /* TodoRepositoryInterface.swift in Sources */,
 				4F73F4215FC5F64FFC0AB5FD /* TodoTableViewCell.swift in Sources */,
 				99A59B2C982F5AD3F9174990 /* TodoWebViewController.swift in Sources */,
+				C8D7B4C1935C4AD629A3B893 /* TokenStorage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

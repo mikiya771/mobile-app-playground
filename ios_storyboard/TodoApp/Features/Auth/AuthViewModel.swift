@@ -1,27 +1,24 @@
 import Foundation
 
-// UIKit + @MainActor。Keychain は Step 14 で差し替え
+// Step 14: UserDefaults → Keychain に差し替え
 @MainActor
 final class AuthViewModel {
     static let shared = AuthViewModel()
-
-    private let key = "auth_token"
     private(set) var isLoggedIn: Bool = false
 
     private init() {}
 
     func initialize() {
-        // Step 14 で Keychain に置き換え。現時点は UserDefaults で代替
-        isLoggedIn = UserDefaults.standard.string(forKey: key) != nil
+        isLoggedIn = TokenStorage.load() != nil
     }
 
     func login(token: String) {
-        UserDefaults.standard.set(token, forKey: key)
+        TokenStorage.save(token)
         isLoggedIn = true
     }
 
     func logout() {
-        UserDefaults.standard.removeObject(forKey: key)
+        TokenStorage.delete()
         isLoggedIn = false
     }
 }
