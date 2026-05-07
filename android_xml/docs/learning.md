@@ -11,7 +11,7 @@
 - [x] Step 3: ConstraintLayout でレイアウトを組む
 - [x] Step 4: モデルクラス Todo を作る
 - [x] Step 5 & 6: インタラクションを追加する (ViewModel + LiveData)
-- [ ] Step 7: Room で CRUD を実装する / ViewModel + MVVM + Clean Architecture 導入
+- [x] Step 7: Room で CRUD を実装する / ViewModel + MVVM + Clean Architecture 導入
 - [ ] Step 8: NavGraph XML で画面遷移を実装する（Navigation Component）
 - [ ] Step 9: AuthGuard を追加する
 - [ ] Step 10: Retrofit で JSONPlaceholder から Todo を取得・同期する
