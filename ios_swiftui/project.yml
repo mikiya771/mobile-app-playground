@@ -1,0 +1,50 @@
+name: TodoApp
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  xcodeVersion: "16"
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    DEVELOPMENT_TEAM: ""
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+
+targets:
+  TodoApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - TodoApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.TodoApp
+        INFOPLIST_FILE: TodoApp/Info.plist
+        SWIFT_VERSION: "6.0"
+    info:
+      path: TodoApp/Info.plist
+      properties:
+        CFBundleName: TodoApp
+        CFBundleDisplayName: TodoApp
+        CFBundleVersion: "1"
+        CFBundleShortVersionString: "1.0"
+        UILaunchScreen: {}
+        CFBundleURLTypes:
+          - CFBundleURLSchemes:
+              - todoapp
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+
+  TodoAppTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - TodoAppTests
+    dependencies:
+      - target: TodoApp
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.TodoAppTests

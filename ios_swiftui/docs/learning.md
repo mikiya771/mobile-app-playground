@@ -6,20 +6,20 @@
 
 ## 進捗
 
-- [ ] Step 1: SwiftUI の View ツリーと @main エントリポイントを理解する
-- [ ] Step 2: @State / @Binding / @Observable の使い分けを体感する
-- [ ] Step 3: レイアウト（VStack / HStack / ZStack / Modifier）を触る
-- [ ] Step 4: モデルクラス Todo を作る（Domain Entity）
-- [ ] Step 5 & 6: リスト表示とインタラクション（List + swipeActions）
-- [ ] Step 7: SwiftData で CRUD を実装する / @Observable ViewModel + Clean Architecture
-- [ ] Step 8: 一覧 → 詳細WebView → 編集フォームを繋ぐ（NavigationStack）
-- [ ] Step 9: AuthGuard を追加する
-- [ ] Step 10: JSONPlaceholder から Todo を取得・同期する（URLSession）
-- [ ] Step 11: UIViewRepresentable で WKWebView を表示する
-- [ ] Step 12: ホワイトリスト制御を実装する（WKNavigationDelegate）
-- [ ] Step 13: ログイン画面（WebView + WKScriptMessageHandler JS Bridge）
-- [ ] Step 14: Keychain でトークン管理・AuthGuard
-- [ ] Step 15: OAuth フロー（ASWebAuthenticationSession）
+- [x] Step 1: SwiftUI の View ツリーと @main エントリポイントを理解する
+- [x] Step 2: @State / @Binding / @Observable の使い分けを体感する
+- [x] Step 3: レイアウト（VStack / HStack / ZStack / Modifier）を触る
+- [x] Step 4: モデルクラス Todo を作る（Domain Entity）
+- [x] Step 5 & 6: リスト表示とインタラクション（List + swipeActions）
+- [x] Step 7: SwiftData で CRUD を実装する / @Observable ViewModel + Clean Architecture
+- [x] Step 8: 一覧 → 詳細WebView → 編集フォームを繋ぐ（NavigationStack）
+- [x] Step 9: AuthGuard を追加する
+- [x] Step 10: JSONPlaceholder から Todo を取得・同期する（URLSession）
+- [x] Step 11: UIViewRepresentable で WKWebView を表示する
+- [x] Step 12: ホワイトリスト制御を実装する（WKNavigationDelegate）
+- [x] Step 13: ログイン画面（WebView + WKScriptMessageHandler JS Bridge）
+- [x] Step 14: Keychain でトークン管理・AuthGuard
+- [x] Step 15: OAuth フロー（ASWebAuthenticationSession）
 
 ---
 
