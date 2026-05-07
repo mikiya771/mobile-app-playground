@@ -13,7 +13,7 @@
 - [x] Step 5 & 6: インタラクションを追加する（State hoisting）
 - [x] Step 7: Room で CRUD を実装する / ViewModel + MVVM + Clean Architecture 導入
 - [x] Step 8: 一覧 → 詳細WebView → 編集フォームを繋ぐ（Navigation Compose）
-- [ ] Step 9: AuthGuard を追加する
+- [x] Step 9: AuthGuard を追加する
 - [ ] Step 10: JSONPlaceholder から Todo を取得・同期する（Ktor Client）
 - [ ] Step 11: AndroidView で WebView を表示する
 - [ ] Step 12: ホワイトリスト制御を実装する

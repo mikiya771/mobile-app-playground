@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
+import com.example.myapplication.auth.AuthViewModel
 import com.example.myapplication.features.todo.TodoListViewModel
 import com.example.myapplication.features.todo.TodoRepository
 import com.example.myapplication.features.todo.data.local.AppDatabase
@@ -26,9 +27,11 @@ class MainActivity : ComponentActivity() {
                 val todoViewModel: TodoListViewModel = viewModel(
                     factory = TodoListViewModel.Factory(repository),
                 )
+                val authViewModel: AuthViewModel = viewModel()
                 AppNavGraph(
                     navController = navController,
                     todoViewModel = todoViewModel,
+                    authViewModel = authViewModel,
                 )
             }
         }
