@@ -12,6 +12,13 @@ class TodoListViewController: UIViewController {
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             title: "ログアウト", style: .plain, target: self, action: #selector(logoutTapped)
         )
+        let syncButton = UIBarButtonItem(
+            image: UIImage(systemName: "arrow.clockwise"),
+            style: .plain, target: self, action: #selector(syncTapped)
+        )
+        if let addButton = navigationItem.rightBarButtonItem {
+            navigationItem.rightBarButtonItems = [addButton, syncButton]
+        }
         setupTableView()
         setupFilterBar()
         viewModel.onUpdate = { [weak self] in
@@ -38,6 +45,8 @@ class TodoListViewController: UIViewController {
         bar.sizeToFit()
         tableView.tableHeaderView = bar
     }
+
+    @objc private func syncTapped() { viewModel.syncFromAPI() }
 
     @objc private func logoutTapped() {
         Task { @MainActor in

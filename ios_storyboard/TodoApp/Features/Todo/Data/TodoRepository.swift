@@ -3,6 +3,7 @@ import Foundation
 @MainActor
 final class TodoRepository: TodoRepositoryInterface {
     private let local: TodoLocalDataSource
+    private let remote = TodoRemoteDataSource()
 
     init(local: TodoLocalDataSource = TodoLocalDataSource()) {
         self.local = local
@@ -19,5 +20,10 @@ final class TodoRepository: TodoRepositoryInterface {
         guard let i = todos.firstIndex(where: { $0.id == id }) else { return }
         todos[i].isCompleted.toggle()
         local.save(todos[i])
+    }
+
+    func syncFromAPI() async throws {
+        let remoteTodos = try await remote.fetchTodos()
+        remoteTodos.forEach { local.save($0) }
     }
 }

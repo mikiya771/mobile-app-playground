@@ -42,4 +42,12 @@ final class TodoListViewModel {
         repository.save(todo)
         loadTodos()
     }
+
+    func syncFromAPI() {
+        Task { @MainActor [weak self] in
+            guard let self else { return }
+            try? await self.repository.syncFromAPI()
+            self.loadTodos()
+        }
+    }
 }

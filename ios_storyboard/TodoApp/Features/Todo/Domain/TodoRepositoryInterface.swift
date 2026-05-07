@@ -6,4 +6,5 @@ protocol TodoRepositoryInterface {
     func save(_ todo: Todo)
     func delete(id: String)
     func toggle(id: String)
+    func syncFromAPI() async throws
 }
