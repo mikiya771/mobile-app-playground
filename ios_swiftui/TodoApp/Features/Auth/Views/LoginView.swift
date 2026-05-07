@@ -1,9 +1,11 @@
 import SwiftUI
 
-// Step 9: ログインボタン2つのダミー画面
-// Step 13 で WebView + JS Bridge に置き換わる
+// Step 13: 2ボタン構成のログイン画面
+// 「自社アカウント」→ LoginWebView（WKWebView + JS Bridge）
+// 「OAuth」→ Step 15 で ASWebAuthenticationSession に置き換え
 struct LoginView: View {
     @Environment(AuthViewModel.self) private var authViewModel
+    @State private var showWebViewLogin = false
 
     var body: some View {
         VStack(spacing: 32) {
@@ -18,8 +20,7 @@ struct LoginView: View {
 
             VStack(spacing: 12) {
                 Button {
-                    // Step 13 で WebView ログインに置き換え
-                    authViewModel.login(token: "mock_token")
+                    showWebViewLogin = true
                 } label: {
                     Label("自社アカウントでログイン", systemImage: "person.circle")
                         .frame(maxWidth: .infinity)
@@ -38,6 +39,11 @@ struct LoginView: View {
                 .controlSize(.large)
             }
             .padding(.horizontal, 32)
+        }
+        .sheet(isPresented: $showWebViewLogin) {
+            NavigationStack {
+                LoginWebView()
+            }
         }
     }
 }
