@@ -15,8 +15,8 @@
 - [ ] Step 8: NavGraph XML で画面遷移を実装する（Navigation Component）
 - [x] Step 9: AuthGuard を追加する
 - [x] Step 10: Retrofit で JSONPlaceholder から Todo を取得・同期する
-- [ ] Step 11: WebView を実装する
-- [ ] Step 12: ホワイトリスト制御を実装する
+- [x] Step 11: WebView を実装する
+- [x] Step 12: ホワイトリスト制御を実装する
 - [ ] Step 13: ログイン画面（WebView + JavaScript Interface）
 - [ ] Step 14: EncryptedSharedPreferences でトークン管理・AuthGuard
 - [ ] Step 15: OAuth フロー（Chrome Custom Tabs）
