@@ -2,8 +2,10 @@ package com.example.androidxml
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.androidxml.databinding.ActivityMainBinding
+import com.example.androidxml.features.todo.TodoAdapter
+import com.example.androidxml.features.todo.dummyTodos
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -13,9 +15,9 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Step 1: primary カラーでテキストを着色（ViewBinding の型安全なアクセス）
-        binding.helloText.setTextColor(
-            ContextCompat.getColor(this, R.color.purple_500)
-        )
+        val adapter = TodoAdapter()
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.adapter = adapter
+        adapter.submitList(dummyTodos)
     }
 }
