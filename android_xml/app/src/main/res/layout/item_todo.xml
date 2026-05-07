@@ -7,28 +7,58 @@
     android:layout_marginVertical="4dp"
     app:cardElevation="2dp">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
         android:padding="16dp">
+
+        <!-- PriorityBadge: 優先度を色付き丸角テキストで表示 -->
+        <TextView
+            android:id="@+id/priorityBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="6dp"
+            android:paddingVertical="2dp"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:background="@drawable/bg_priority_badge"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/titleText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="16sp" />
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:textSize="16sp"
+            app:layout_constraintStart_toEndOf="@id/priorityBadge"
+            app:layout_constraintEnd_toStartOf="@id/checkIcon"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/descriptionText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginTop="2dp"
+            android:textSize="12sp"
+            android:visibility="gone"
+            app:layout_constraintStart_toEndOf="@id/priorityBadge"
+            app:layout_constraintEnd_toStartOf="@id/checkIcon"
+            app:layout_constraintTop_toBottomOf="@id/titleText" />
 
         <ImageView
             android:id="@+id/checkIcon"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginStart="8dp"
             android:src="@android:drawable/checkbox_on_background"
-            android:contentDescription="完了" />
+            android:contentDescription="完了切替"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </com.google.android.material.card.MaterialCardView>
