@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.androidxml.auth.AuthViewModel
+import com.example.androidxml.auth.TokenStorage
 import com.example.androidxml.databinding.ActivityMainBinding
 import com.example.androidxml.features.todo.TodoListViewModel
 import com.example.androidxml.features.todo.TodoRepository
@@ -17,8 +18,9 @@ class MainActivity : AppCompatActivity() {
 
     private val db by lazy { AppDatabase.getInstance(this) }
     private val repository by lazy { TodoRepository(TodoLocalDataSource(db.todoDao())) }
+    private val tokenStorage by lazy { TokenStorage(this) }
 
-    val authViewModel: AuthViewModel by viewModels()
+    val authViewModel: AuthViewModel by viewModels { AuthViewModel.Factory(tokenStorage) }
     val todoViewModel: TodoListViewModel by viewModels { TodoListViewModel.Factory(repository) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
