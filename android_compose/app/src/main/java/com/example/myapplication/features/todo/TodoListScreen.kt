@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -30,14 +31,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 val TodoPriority.color: Color
     get() = when (this) {
@@ -55,48 +55,52 @@ val TodoPriority.label: String
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TodoListScreen() {
-    var todos by remember { mutableStateOf(dummyTodos) }
-    var filter by remember { mutableStateOf(TodoFilter.ALL) }
-
-    val filtered = when (filter) {
-        TodoFilter.ALL       -> todos
-        TodoFilter.ACTIVE    -> todos.filter { !it.isCompleted }
-        TodoFilter.COMPLETED -> todos.filter { it.isCompleted }
-    }
+fun TodoListScreen(
+    viewModel: TodoListViewModel,
+    onTodoClick: (String) -> Unit = {},
+    onAddClick: () -> Unit = {},
+    onOpenWeb: (String) -> Unit = {},
+) {
+    val state by viewModel.state.collectAsState()
 
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("TODO") })
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = {}) {
+            FloatingActionButton(onClick = onAddClick) {
                 Icon(Icons.Default.Add, contentDescription = "追加")
             }
         },
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-        ) {
-            FilterTabBar(
-                selected = filter,
-                onSelect = { filter = it },
-            )
-            LazyColumn {
-                items(filtered, key = { it.id }) { todo ->
-                    SwipableTodoCard(
-                        todo = todo,
-                        onToggle = { id ->
-                            todos = todos.map { t ->
-                                if (t.id == id) t.copy(isCompleted = !t.isCompleted) else t
-                            }
-                        },
-                        onDelete = { id ->
-                            todos = todos.filter { t -> t.id != id }
-                        },
-                    )
+        if (state.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+            ) {
+                FilterTabBar(
+                    selected = state.filter,
+                    onSelect = { viewModel.setFilter(it) },
+                )
+                LazyColumn {
+                    items(state.filtered, key = { it.id }) { todo ->
+                        SwipableTodoCard(
+                            todo = todo,
+                            onToggle = { viewModel.toggle(it) },
+                            onDelete = { viewModel.delete(it) },
+                            onClick = { onTodoClick(todo.id) },
+                        )
+                    }
                 }
             }
         }
@@ -109,6 +113,7 @@ fun SwipableTodoCard(
     todo: Todo,
     onToggle: (String) -> Unit,
     onDelete: (String) -> Unit,
+    onClick: () -> Unit = {},
 ) {
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = { it == SwipeToDismissBoxValue.EndToStart },
@@ -133,7 +138,7 @@ fun SwipableTodoCard(
             }
         },
     ) {
-        TodoCard(todo = todo, onToggle = onToggle)
+        TodoCard(todo = todo, onToggle = onToggle, onClick = onClick)
     }
 }
 
@@ -159,8 +164,13 @@ fun FilterTabBar(selected: TodoFilter, onSelect: (TodoFilter) -> Unit) {
 }
 
 @Composable
-fun TodoCard(todo: Todo, onToggle: (String) -> Unit = {}) {
+fun TodoCard(
+    todo: Todo,
+    onToggle: (String) -> Unit = {},
+    onClick: () -> Unit = {},
+) {
     Card(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 4.dp),
