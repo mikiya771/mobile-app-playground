@@ -1,26 +1,28 @@
 import SwiftUI
 
-// Step 8: 詳細画面のプレースホルダー
-// Step 11 で WKWebView に置き換わる
+// Step 11: WKWebView で詳細ページを表示する
 struct TodoDetailWebView: View {
     let todoId: String
+    @State private var webViewKey = UUID()  // リロード用
+
+    private var url: URL {
+        URL(string: "https://jsonplaceholder.typicode.com/todos/\(todoId.replacingOccurrences(of: "api_", with: ""))")!
+    }
 
     var body: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "globe")
-                .font(.system(size: 48))
-                .foregroundStyle(.secondary)
-            Text("詳細 WebView")
-                .font(.headline)
-            Text("ID: \(todoId)")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Text("Step 11 で WKWebView を実装します")
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
-        }
-        .navigationTitle("詳細")
-        .navigationBarTitleDisplayMode(.inline)
+        WebViewRepresentable(url: url, allowedHosts: WebViewConfig.allowedHosts)
+            .id(webViewKey)
+            .navigationTitle("詳細")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        webViewKey = UUID()
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                    }
+                }
+            }
     }
 }
 

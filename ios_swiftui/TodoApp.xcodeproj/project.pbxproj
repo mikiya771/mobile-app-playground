@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0D572BE6AE5700362F314C79 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E9A2C625B3A67309C97E38A /* AppRoute.swift */; };
+		111F91E8427D05D6A184935C /* WebViewConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E23CE810B7C47DEDF46C2BB /* WebViewConfig.swift */; };
 		141888E59C711AB27E745B2F /* TodoFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA48D397A1ED6C5DA84D6C9 /* TodoFormView.swift */; };
 		1AAA6B6B98390A5456CE45C6 /* TodoDTO.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FA0BB7698CB0BB7D6D94398 /* TodoDTO.swift */; };
 		1E1460ECFC116DCA126A30C3 /* TodoLocalDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = E935BBF58D1FF7CE6C1DBABA /* TodoLocalDataSource.swift */; };
@@ -30,6 +31,7 @@
 		A212F3EF649C6CA1D76B8697 /* TodoRemoteDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68E27EDE51DC5FF2675BA8D6 /* TodoRemoteDataSource.swift */; };
 		BBCA2EF9C9C8A8EDC48823CB /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4D961032DA82DC75F10D54D /* LoginView.swift */; };
 		C58A2D6E9DFB053F7E48CC6B /* PriorityBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4573C8CD1B555DD9F4DBD155 /* PriorityBadge.swift */; };
+		E958C34576A0F645A88F6B99 /* WebViewRepresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE17168C176C7195FEB90E91 /* WebViewRepresentable.swift */; };
 		FF829A8EA6A62788AD4D1220 /* TodoAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0572A6928639398CA5236A8 /* TodoAppTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -51,6 +53,7 @@
 		18C1E181BFF810D4705D6D8B /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		1E9A2C625B3A67309C97E38A /* AppRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRoute.swift; sourceTree = "<group>"; };
 		20202EB39E9DC75329379E10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		2E23CE810B7C47DEDF46C2BB /* WebViewConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewConfig.swift; sourceTree = "<group>"; };
 		4573C8CD1B555DD9F4DBD155 /* PriorityBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriorityBadge.swift; sourceTree = "<group>"; };
 		4C372423DB2F2E1F9E426922 /* TodoAppTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TodoAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		51FCCFF4F2F1F27F8D67610C /* TodoRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoRepository.swift; sourceTree = "<group>"; };
@@ -70,6 +73,7 @@
 		E935BBF58D1FF7CE6C1DBABA /* TodoLocalDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoLocalDataSource.swift; sourceTree = "<group>"; };
 		EAA48D397A1ED6C5DA84D6C9 /* TodoFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoFormView.swift; sourceTree = "<group>"; };
 		EADA213F4541B61585756D49 /* TodoApp.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = TodoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EE17168C176C7195FEB90E91 /* WebViewRepresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebViewRepresentable.swift; sourceTree = "<group>"; };
 		F9EA10D7D38EC2127F5D4CBB /* TodoItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoItem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -80,6 +84,7 @@
 				8417808C48D20312DC5DBF5D /* Auth */,
 				CDB72C2C587429D24024C571 /* Debug */,
 				459BC7F57E5BE7B0C4D89D94 /* Todo */,
+				FEC77E95646E07AD237DF32B /* WebView */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -97,6 +102,7 @@
 			children = (
 				20202EB39E9DC75329379E10 /* Info.plist */,
 				E9E44982AC115A9E9CFE5A0F /* App */,
+				BE2D1E113E87C61E0816418B /* Config */,
 				150D9BBE694CC47DC8D5F471 /* Features */,
 				A52D136FE573F3A21479C6B6 /* Navigation */,
 			);
@@ -198,6 +204,14 @@
 			path = Navigation;
 			sourceTree = "<group>";
 		};
+		BE2D1E113E87C61E0816418B /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				2E23CE810B7C47DEDF46C2BB /* WebViewConfig.swift */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
 		CDB72C2C587429D24024C571 /* Debug */ = {
 			isa = PBXGroup;
 			children = (
@@ -225,6 +239,14 @@
 				565CE86EF4C125716D0B7C49 /* TodoCard.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		FEC77E95646E07AD237DF32B /* WebView */ = {
+			isa = PBXGroup;
+			children = (
+				EE17168C176C7195FEB90E91 /* WebViewRepresentable.swift */,
+			);
+			path = WebView;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -330,6 +352,8 @@
 				A212F3EF649C6CA1D76B8697 /* TodoRemoteDataSource.swift in Sources */,
 				3D45925AEC3ED0B464E85059 /* TodoRepository.swift in Sources */,
 				5D1B8F896135D6EC968F06B0 /* TodoRepositoryInterface.swift in Sources */,
+				111F91E8427D05D6A184935C /* WebViewConfig.swift in Sources */,
+				E958C34576A0F645A88F6B99 /* WebViewRepresentable.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
