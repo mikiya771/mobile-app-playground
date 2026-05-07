@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		637F9285A67372A386CF0072 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 088FFDE4540F108A28893E4A /* ContentView.swift */; };
+		77469786A9620740AFA95B61 /* StatePlayground.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D3E0BDA85BEFAF98237D455 /* StatePlayground.swift */; };
 		A0E727868CD330FA0B5BF2EA /* TodoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC5E930A1D8090610CF5DBB6 /* TodoApp.swift */; };
 		FF829A8EA6A62788AD4D1220 /* TodoAppTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0572A6928639398CA5236A8 /* TodoAppTests.swift */; };
 /* End PBXBuildFile section */
@@ -24,6 +25,7 @@
 
 /* Begin PBXFileReference section */
 		088FFDE4540F108A28893E4A /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		0D3E0BDA85BEFAF98237D455 /* StatePlayground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatePlayground.swift; sourceTree = "<group>"; };
 		20202EB39E9DC75329379E10 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		4C372423DB2F2E1F9E426922 /* TodoAppTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = TodoAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AC5E930A1D8090610CF5DBB6 /* TodoApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoApp.swift; sourceTree = "<group>"; };
@@ -32,11 +34,20 @@
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		150D9BBE694CC47DC8D5F471 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				CDB72C2C587429D24024C571 /* Debug */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
 		349DB45D09325AF1AE6AEE42 /* TodoApp */ = {
 			isa = PBXGroup;
 			children = (
 				20202EB39E9DC75329379E10 /* Info.plist */,
 				E9E44982AC115A9E9CFE5A0F /* App */,
+				150D9BBE694CC47DC8D5F471 /* Features */,
 			);
 			path = TodoApp;
 			sourceTree = "<group>";
@@ -65,6 +76,14 @@
 				E0572A6928639398CA5236A8 /* TodoAppTests.swift */,
 			);
 			path = TodoAppTests;
+			sourceTree = "<group>";
+		};
+		CDB72C2C587429D24024C571 /* Debug */ = {
+			isa = PBXGroup;
+			children = (
+				0D3E0BDA85BEFAF98237D455 /* StatePlayground.swift */,
+			);
+			path = Debug;
 			sourceTree = "<group>";
 		};
 		E9E44982AC115A9E9CFE5A0F /* App */ = {
@@ -157,6 +176,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				637F9285A67372A386CF0072 /* ContentView.swift in Sources */,
+				77469786A9620740AFA95B61 /* StatePlayground.swift in Sources */,
 				A0E727868CD330FA0B5BF2EA /* TodoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
