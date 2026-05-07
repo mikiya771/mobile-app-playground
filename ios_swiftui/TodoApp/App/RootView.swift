@@ -1,26 +1,33 @@
 import SwiftUI
 import SwiftData
 
-// Step 8: NavigationStack + AppRouter でマルチ画面を構成
-// Step 9 で AuthGuard を追加する
+// Step 9: AuthGuard
+// go_router の redirect に相当する isLoggedIn による分岐
 struct RootView: View {
     @Environment(\.modelContext) private var context
     @State private var router = AppRouter()
+    @State private var authViewModel = AuthViewModel()
 
     var body: some View {
-        // Step 9 でここを AuthGuard に置き換える
-        NavigationStack(path: $router.path) {
-            TodoListView(viewModel: TodoListViewModel(repository: makeRepository()))
-                .navigationDestination(for: AppRoute.self) { route in
-                    switch route {
-                    case .todoDetail(let id):
-                        TodoDetailWebView(todoId: id)
-                    case .todoForm(let todo):
-                        TodoFormView(editingTodo: todo, onSave: { _ in router.pop() })
-                    }
+        Group {
+            if authViewModel.isLoggedIn {
+                NavigationStack(path: $router.path) {
+                    TodoListView(viewModel: TodoListViewModel(repository: makeRepository()))
+                        .navigationDestination(for: AppRoute.self) { route in
+                            switch route {
+                            case .todoDetail(let id):
+                                TodoDetailWebView(todoId: id)
+                            case .todoForm(let todo):
+                                TodoFormView(editingTodo: todo, onSave: { _ in router.pop() })
+                            }
+                        }
                 }
+            } else {
+                LoginView()
+            }
         }
         .environment(router)
+        .environment(authViewModel)
     }
 
     private func makeRepository() -> TodoRepositoryInterface {

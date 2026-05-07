@@ -5,6 +5,7 @@ struct TodoListView: View {
     @State private var showForm = false
     @State private var editingTodo: Todo? = nil
     @Environment(AppRouter.self) private var router
+    @Environment(AuthViewModel.self) private var authViewModel
 
     var body: some View {
         Group {
@@ -85,6 +86,10 @@ struct TodoListView: View {
                     Label("API同期", systemImage: "arrow.triangle.2.circlepath")
                 }
             }
+        }
+        ToolbarItem(placement: .topBarLeading) {
+            Button("ログアウト") { authViewModel.logout() }
+                .foregroundStyle(.red)
         }
     }
 }
