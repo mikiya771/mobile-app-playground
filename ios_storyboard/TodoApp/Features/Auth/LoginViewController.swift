@@ -55,12 +55,16 @@ class LoginViewController: UIViewController {
     }
 
     @objc @IBAction func loginTapped(_ sender: Any) {
-        // Step 13 でこの処理を WebView 遷移に置き換える
-        Task { @MainActor in
-            AuthViewModel.shared.login(token: "dummy-token")
-            AuthRouter.showTodoList()
-        }
+        // Step 13: WebView ログイン画面をモーダル表示
+        let webVC = LoginWebViewController()
+        let nav = UINavigationController(rootViewController: webVC)
+        webVC.navigationItem.leftBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .cancel, target: self, action: #selector(dismissWebLogin)
+        )
+        present(nav, animated: true)
     }
+
+    @objc private func dismissWebLogin() { dismiss(animated: true) }
 
     @objc @IBAction func oauthTapped(_ sender: Any) {
         // Step 15 で ASWebAuthenticationSession に置き換える

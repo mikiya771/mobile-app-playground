@@ -11,6 +11,7 @@
 		03BC6C20693E4AF37AC9762B /* TodoRepositoryInterface.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC35CBC2855AF02EE7B9A7C1 /* TodoRepositoryInterface.swift */; };
 		1B97A9D7682586F888E7D0A1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 2DE0B9485D426FE713E47551 /* Main.storyboard */; };
 		1E1460ECFC116DCA126A30C3 /* TodoLocalDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = E935BBF58D1FF7CE6C1DBABA /* TodoLocalDataSource.swift */; };
+		31EAF9EA4858BA9ED7A78895 /* login.html in Resources */ = {isa = PBXBuildFile; fileRef = D742E8115F565F6BD314A84A /* login.html */; };
 		37D42429D0AB98EDFBCADA93 /* TodoListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38105128061E34E16EA23C0 /* TodoListViewModel.swift */; };
 		3D5BAFA69AE385198A87D9C2 /* TodoFormViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F2C82E1E203ED05A25B3FD3 /* TodoFormViewController.swift */; };
 		4F73F4215FC5F64FFC0AB5FD /* TodoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76A471067C98AE6126E5A647 /* TodoTableViewCell.swift */; };
@@ -67,6 +68,7 @@
 		B5F6B57E87AB7768C585D59A /* TodoApp.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TodoApp.xcdatamodel; sourceTree = "<group>"; };
 		CB8D613D5F53FFE4C2846C92 /* AuthRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthRouter.swift; sourceTree = "<group>"; };
 		CC35CBC2855AF02EE7B9A7C1 /* TodoRepositoryInterface.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoRepositoryInterface.swift; sourceTree = "<group>"; };
+		D742E8115F565F6BD314A84A /* login.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = login.html; sourceTree = "<group>"; };
 		DD884372F390ABEE2A6892B6 /* TodoListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListViewController.swift; sourceTree = "<group>"; };
 		E0572A6928639398CA5236A8 /* TodoAppTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoAppTests.swift; sourceTree = "<group>"; };
 		E0EA4316C338010AA6F118CE /* LoginWebViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginWebViewController.swift; sourceTree = "<group>"; };
@@ -94,6 +96,7 @@
 				BFFA5228959C8D87AD2D72FC /* CoreData */,
 				150D9BBE694CC47DC8D5F471 /* Features */,
 				A52D136FE573F3A21479C6B6 /* Navigation */,
+				6CFAF9DF9F41E8E2ECAA77DF /* Resources */,
 				7A396C8B3E113E6690CF6F65 /* Storyboard */,
 			);
 			path = TodoApp;
@@ -155,6 +158,14 @@
 				E935BBF58D1FF7CE6C1DBABA /* TodoLocalDataSource.swift */,
 			);
 			path = Local;
+			sourceTree = "<group>";
+		};
+		6CFAF9DF9F41E8E2ECAA77DF /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				D742E8115F565F6BD314A84A /* login.html */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		6FAA913EC3D0B34285B381DA /* Remote */ = {
@@ -328,6 +339,7 @@
 			files = (
 				A749CA09C5870A08D858FF56 /* LaunchScreen.storyboard in Resources */,
 				1B97A9D7682586F888E7D0A1 /* Main.storyboard in Resources */,
+				31EAF9EA4858BA9ED7A78895 /* login.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

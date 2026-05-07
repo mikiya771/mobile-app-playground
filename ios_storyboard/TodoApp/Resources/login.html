@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: -apple-system; display: flex; flex-direction: column;
+           align-items: center; justify-content: center; height: 100vh; margin: 0; }
+    h1 { font-size: 28px; margin-bottom: 32px; }
+    button { padding: 14px 40px; font-size: 16px; border-radius: 10px;
+             background: #007AFF; color: white; border: none; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <h1>ログイン</h1>
+  <button onclick="login()">ログイン</button>
+  <script>
+    function login() {
+      const token = "webview-token-" + Date.now();
+      // JS Bridge: WKScriptMessageHandler "FlutterAuth" に相当
+      window.webkit.messageHandlers.iOSAuth.postMessage({ token: token });
+    }
+  </script>
+</body>
+</html>
