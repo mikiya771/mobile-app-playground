@@ -3,10 +3,12 @@ package com.example.myapplication.auth
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.net.toUri
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -19,7 +21,14 @@ fun LoginWebViewScreen(onLoginSuccess: (String) -> Unit) {
                 settings.javaScriptEnabled = true
                 webViewClient = WebViewClient()
                 addJavascriptInterface(
-                    FlutterAuthBridge(onLoginSuccess),
+                    FlutterAuthBridge(
+                        onLoginSuccess = onLoginSuccess,
+                        onStartOAuth = {
+                            // Chrome Custom Tabs でモック認可サーバーを開く
+                            CustomTabsIntent.Builder().build()
+                                .launchUrl(context, "file:///android_asset/oauth/authorize.html".toUri())
+                        },
+                    ),
                     "FlutterAuth",
                 )
                 loadUrl("file:///android_asset/login.html")
@@ -31,17 +40,17 @@ fun LoginWebViewScreen(onLoginSuccess: (String) -> Unit) {
 
 private class FlutterAuthBridge(
     private val onLoginSuccess: (String) -> Unit,
+    private val onStartOAuth: () -> Unit,
 ) {
     private val mainScope = MainScope()
 
-    // JS から呼ばれる唯一の入口（@JavascriptInterface のないメソッドは JS からアクセス不可）
     @JavascriptInterface
     fun postMessage(json: String) {
         mainScope.launch {
             val data = JSONObject(json)
             when (data.getString("type")) {
                 "login" -> onLoginSuccess(data.getString("token"))
-                "oauth" -> onLoginSuccess("oauth_mock_token")
+                "oauth" -> onStartOAuth()
             }
         }
     }

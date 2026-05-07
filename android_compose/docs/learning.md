@@ -19,7 +19,7 @@
 - [x] Step 12: ホワイトリスト制御を実装する
 - [x] Step 13: ログイン画面（WebView + JavaScript Interface）
 - [x] Step 14: EncryptedSharedPreferences でトークン管理・AuthGuard
-- [ ] Step 15: OAuth フロー（Chrome Custom Tabs）
+- [x] Step 15: OAuth フロー（Chrome Custom Tabs）
 
 ---
 
