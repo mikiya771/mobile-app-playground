@@ -14,7 +14,7 @@
 - [x] Step 7: Room で CRUD を実装する / ViewModel + MVVM + Clean Architecture 導入
 - [x] Step 8: 一覧 → 詳細WebView → 編集フォームを繋ぐ（Navigation Compose）
 - [x] Step 9: AuthGuard を追加する
-- [ ] Step 10: JSONPlaceholder から Todo を取得・同期する（Ktor Client）
+- [x] Step 10: JSONPlaceholder から Todo を取得・同期する（Ktor Client）
 - [ ] Step 11: AndroidView で WebView を表示する
 - [ ] Step 12: ホワイトリスト制御を実装する
 - [ ] Step 13: ログイン画面（WebView + JavaScript Interface）
