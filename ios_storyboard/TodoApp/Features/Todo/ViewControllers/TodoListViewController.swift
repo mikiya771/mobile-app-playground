@@ -1,26 +1,20 @@
 import UIKit
 
-// Step 5 & 6: UITableView + swipe削除 + toggle
-// Step 7 で ViewModel に接続（現在はサンプルデータ直接参照）
+// Step 7: ViewModel + CoreData 連携
 class TodoListViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
 
-    private var todos = Todo.samples
-    private var filter: TodoFilter = .all
-
-    private var filteredTodos: [Todo] {
-        switch filter {
-        case .all: todos
-        case .active: todos.filter { !$0.isCompleted }
-        case .completed: todos.filter { $0.isCompleted }
-        }
-    }
+    private let viewModel = TodoListViewModel()
 
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "Todo"
         setupTableView()
         setupFilterBar()
+        viewModel.onUpdate = { [weak self] in
+            DispatchQueue.main.async { self?.tableView.reloadData() }
+        }
+        viewModel.loadTodos()
     }
 
     private func setupTableView() {
@@ -43,31 +37,38 @@ class TodoListViewController: UIViewController {
     }
 
     @objc private func filterChanged(_ sender: UISegmentedControl) {
-        filter = TodoFilter.allCases[sender.selectedSegmentIndex]
-        tableView.reloadData()
+        viewModel.filter = TodoFilter.allCases[sender.selectedSegmentIndex]
     }
 
     @objc @IBAction func addTapped(_ sender: Any) {
         performSegue(withIdentifier: "showForm", sender: nil)
     }
 
-    private func toggle(id: String) {
-        guard let i = todos.firstIndex(where: { $0.id == id }) else { return }
-        todos[i].isCompleted.toggle()
-        tableView.reloadData()
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "showDetail",
+           let nav = segue.destination as? UINavigationController,
+           let vc = nav.topViewController as? TodoDetailViewController {
+            vc.todoId = (sender as? Todo)?.id ?? ""
+        }
+        if segue.identifier == "showForm",
+           let nav = segue.destination as? UINavigationController,
+           let vc = nav.topViewController as? TodoFormViewController {
+            vc.editingTodo = sender as? Todo
+            vc.onSave = { [weak self] todo in self?.viewModel.save(todo) }
+        }
     }
 }
 
 // MARK: - UITableViewDataSource
 extension TodoListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        filteredTodos.count
+        viewModel.filteredTodos.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TodoCell", for: indexPath) as! TodoTableViewCell
-        let todo = filteredTodos[indexPath.row]
-        cell.configure(with: todo) { [weak self] in self?.toggle(id: todo.id) }
+        let todo = viewModel.filteredTodos[indexPath.row]
+        cell.configure(with: todo) { [weak self] in self?.viewModel.toggle(id: todo.id) }
         return cell
     }
 }
@@ -76,17 +77,16 @@ extension TodoListViewController: UITableViewDataSource {
 extension TodoListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        performSegue(withIdentifier: "showDetail", sender: filteredTodos[indexPath.row])
+        performSegue(withIdentifier: "showDetail", sender: viewModel.filteredTodos[indexPath.row])
     }
 
     func tableView(
         _ tableView: UITableView,
         trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath
     ) -> UISwipeActionsConfiguration? {
-        let id = filteredTodos[indexPath.row].id
+        let id = viewModel.filteredTodos[indexPath.row].id
         let delete = UIContextualAction(style: .destructive, title: "削除") { [weak self] _, _, done in
-            self?.todos.removeAll { $0.id == id }
-            self?.tableView.deleteRows(at: [indexPath], with: .automatic)
+            self?.viewModel.delete(id: id)
             done(true)
         }
         delete.image = UIImage(systemName: "trash")
