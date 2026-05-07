@@ -15,8 +15,8 @@
 - [x] Step 8: 一覧 → 詳細WebView → 編集フォームを繋ぐ（Navigation Compose）
 - [x] Step 9: AuthGuard を追加する
 - [x] Step 10: JSONPlaceholder から Todo を取得・同期する（Ktor Client）
-- [ ] Step 11: AndroidView で WebView を表示する
-- [ ] Step 12: ホワイトリスト制御を実装する
+- [x] Step 11: AndroidView で WebView を表示する
+- [x] Step 12: ホワイトリスト制御を実装する
 - [ ] Step 13: ログイン画面（WebView + JavaScript Interface）
 - [ ] Step 14: EncryptedSharedPreferences でトークン管理・AuthGuard
 - [ ] Step 15: OAuth フロー（Chrome Custom Tabs）

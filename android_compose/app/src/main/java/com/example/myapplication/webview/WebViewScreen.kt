@@ -1,5 +1,9 @@
 package com.example.myapplication.webview
 
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,18 +24,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WebViewScreen(url: String, onBack: () -> Unit) {
     var isLoading by remember { mutableStateOf(true) }
+    var currentUrl by remember { mutableStateOf(url) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(url.takeIf { it.isNotBlank() } ?: "WebView") },
+                title = { Text(currentUrl.takeIf { it.isNotBlank() } ?: "WebView") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
@@ -52,6 +56,20 @@ fun WebViewScreen(url: String, onBack: () -> Unit) {
                         webViewClient = object : WebViewClient() {
                             override fun onPageFinished(view: WebView, url: String) {
                                 isLoading = false
+                                currentUrl = url
+                            }
+
+                            // ホワイトリスト制御（Step 12）
+                            override fun shouldOverrideUrlLoading(
+                                view: WebView,
+                                request: WebResourceRequest,
+                            ): Boolean {
+                                val host = request.url.host ?: return true
+                                if (WebViewConfig.isAllowed(host)) return false
+                                // ホワイトリスト外 → Chrome Custom Tabs で外部に渡す
+                                CustomTabsIntent.Builder().build()
+                                    .launchUrl(context, request.url.toString().toUri())
+                                return true
                             }
                         }
                         if (url.isNotBlank()) loadUrl(url)
