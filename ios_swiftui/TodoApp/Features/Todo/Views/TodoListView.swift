@@ -4,6 +4,7 @@ struct TodoListView: View {
     @State var viewModel: TodoListViewModel
     @State private var showForm = false
     @State private var editingTodo: Todo? = nil
+    @Environment(AppRouter.self) private var router
 
     var body: some View {
         Group {
@@ -37,6 +38,7 @@ struct TodoListView: View {
                 TodoCard(todo: todo) {
                     Task { await viewModel.toggle(id: todo.id) }
                 }
+                .onTapGesture { router.push(.todoDetail(id: todo.id)) }
                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                     Button(role: .destructive) {
                         Task { await viewModel.delete(id: todo.id) }
