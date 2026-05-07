@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -17,13 +18,30 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+
+// Screen 層で変換（モデルに UI を持たせない）
+val TodoPriority.color: Color
+    get() = when (this) {
+        TodoPriority.LOW    -> Color(0xFF4CAF50)
+        TodoPriority.MEDIUM -> Color(0xFFFF9800)
+        TodoPriority.HIGH   -> Color(0xFFF44336)
+    }
+
+val TodoPriority.label: String
+    get() = when (this) {
+        TodoPriority.LOW    -> "低"
+        TodoPriority.MEDIUM -> "中"
+        TodoPriority.HIGH   -> "高"
+    }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,7 +77,6 @@ fun FilterTabBar(selected: String, onSelect: (String) -> Unit) {
         listOf("ALL", "ACTIVE", "COMPLETED").forEach { label ->
             TextButton(
                 onClick = { onSelect(label) },
-                // weight(1f) を外すとタブが横幅を取らなくなる（Step 3 演習ポイント）
                 modifier = Modifier.weight(1f),
             ) {
                 Text(
@@ -67,7 +84,7 @@ fun FilterTabBar(selected: String, onSelect: (String) -> Unit) {
                     color = if (label == selected) {
                         MaterialTheme.colorScheme.primary
                     } else {
-                        MaterialTheme.colorScheme.onSurface,
+                        MaterialTheme.colorScheme.onSurface
                     },
                 )
             }
@@ -85,17 +102,41 @@ fun TodoCard(todo: Todo) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            // horizontalArrangement を変えて動きを確認する（Step 3 演習ポイント）
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(
-                text = todo.title,
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.bodyLarge,
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = todo.title, style = MaterialTheme.typography.bodyLarge)
+                if (todo.description.isNotBlank()) {
+                    Text(
+                        text = todo.description,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            PriorityBadge(priority = todo.priority)
             if (todo.isCompleted) {
-                Icon(Icons.Default.Check, contentDescription = "完了")
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = "完了",
+                    modifier = Modifier.padding(start = 8.dp),
+                )
             }
         }
+    }
+}
+
+@Composable
+fun PriorityBadge(priority: TodoPriority) {
+    Surface(
+        color = priority.color,
+        shape = RoundedCornerShape(4.dp),
+    ) {
+        Text(
+            text = priority.label,
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.White,
+        )
     }
 }
