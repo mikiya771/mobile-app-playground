@@ -14,7 +14,7 @@
 - [x] Step 7: Room で CRUD を実装する / ViewModel + MVVM + Clean Architecture 導入
 - [ ] Step 8: NavGraph XML で画面遷移を実装する（Navigation Component）
 - [x] Step 9: AuthGuard を追加する
-- [ ] Step 10: Retrofit で JSONPlaceholder から Todo を取得・同期する
+- [x] Step 10: Retrofit で JSONPlaceholder から Todo を取得・同期する
 - [ ] Step 11: WebView を実装する
 - [ ] Step 12: ホワイトリスト制御を実装する
 - [ ] Step 13: ログイン画面（WebView + JavaScript Interface）

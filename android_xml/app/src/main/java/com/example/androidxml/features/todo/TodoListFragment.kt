@@ -2,15 +2,20 @@ package com.example.androidxml.features.todo
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.androidxml.MainActivity
 import com.example.androidxml.R
 import com.example.androidxml.databinding.FragmentTodoListBinding
 
@@ -25,6 +30,17 @@ class TodoListFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        // 同期メニュー（Step 10: Retrofit API 同期）
+        requireActivity().addMenuProvider(object : MenuProvider {
+            override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+                menuInflater.inflate(R.menu.menu_todo_list, menu)
+            }
+            override fun onMenuItemSelected(item: MenuItem): Boolean {
+                if (item.itemId == R.id.action_sync) { viewModel.sync(); return true }
+                return false
+            }
+        }, viewLifecycleOwner)
+
         val adapter = TodoAdapter(
             onToggle = { viewModel.toggle(it) },
             onClick = { id ->
@@ -53,6 +69,9 @@ class TodoListFragment : Fragment() {
             binding.tabAll.setTextColor(if (selected == TodoFilter.ALL) primary else normal)
             binding.tabActive.setTextColor(if (selected == TodoFilter.ACTIVE) primary else normal)
             binding.tabCompleted.setTextColor(if (selected == TodoFilter.COMPLETED) primary else normal)
+        }
+        viewModel.isSyncing.observe(viewLifecycleOwner) { syncing ->
+            binding.recyclerView.alpha = if (syncing) 0.5f else 1f
         }
     }
 
