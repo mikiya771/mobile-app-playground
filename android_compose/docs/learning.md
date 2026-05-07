@@ -18,7 +18,7 @@
 - [x] Step 11: AndroidView で WebView を表示する
 - [x] Step 12: ホワイトリスト制御を実装する
 - [x] Step 13: ログイン画面（WebView + JavaScript Interface）
-- [ ] Step 14: EncryptedSharedPreferences でトークン管理・AuthGuard
+- [x] Step 14: EncryptedSharedPreferences でトークン管理・AuthGuard
 - [ ] Step 15: OAuth フロー（Chrome Custom Tabs）
 
 ---
