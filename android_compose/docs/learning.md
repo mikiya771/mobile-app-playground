@@ -6,7 +6,7 @@
 
 ## 進捗
 
-- [ ] Step 1: MainActivity を読んで Composable ツリーを理解する
+- [x] Step 1: MainActivity を読んで Composable ツリーを理解する
 - [ ] Step 2: Stateless / Stateful Composable の違いを体感する
 - [ ] Step 3: レイアウト Composable（Column / Row / Box / Modifier）を触る
 - [ ] Step 4: モデルクラス Todo を作る
@@ -97,6 +97,11 @@ setContent {
 | シェイプ | `MaterialTheme.shapes.*` |
 
 Flutter の `Theme.of(context)` が `MaterialTheme.*` に対応する。
+
+**注意: `dynamicColor = true`（デフォルト）の落とし穴**
+
+Android 12 以降は `dynamicColor = true` のとき OS の壁紙色が `primary` に優先される。  
+自分で定義した色を確認したい場合は `dynamicColor = false` を明示する必要がある。
 
 ---
 
