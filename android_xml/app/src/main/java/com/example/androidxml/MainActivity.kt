@@ -2,9 +2,12 @@ package com.example.androidxml
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.androidxml.auth.AuthViewModel
 import com.example.androidxml.auth.TokenStorage
@@ -33,7 +36,19 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController = navHostFragment.navController
-        setupActionBarWithNavController(navController)
+
+        val topLevelDestinations = setOf(R.id.todoListFragment, R.id.settingsFragment)
+        val appBarConfig = AppBarConfiguration(topLevelDestinations)
+        setupActionBarWithNavController(navController, appBarConfig)
+
+        NavigationUI.setupWithNavController(binding.bottomNav, navController)
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            binding.bottomNav.visibility = when (destination.id) {
+                R.id.loginFragment -> View.GONE
+                else -> View.VISIBLE
+            }
+        }
 
         // AuthGuard: 認証状態に応じて login / home にリダイレクト
         authViewModel.state.observe(this) { state ->

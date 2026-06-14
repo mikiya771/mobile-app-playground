@@ -51,4 +51,20 @@
             android:defaultValue="" />
     </fragment>
 
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.androidxml.features.settings.SettingsFragment"
+        android:label="設定"
+        tools:layout="@layout/fragment_settings">
+        <action
+            android:id="@+id/action_settings_to_detail"
+            app:destination="@id/settingsDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/settingsDetailFragment"
+        android:name="com.example.androidxml.features.settings.SettingsDetailFragment"
+        android:label="設定詳細"
+        tools:layout="@layout/fragment_settings_detail" />
+
 </navigation>

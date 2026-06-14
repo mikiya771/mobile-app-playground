@@ -24,6 +24,7 @@
         <scene sceneID="nav-scene">
             <objects>
                 <navigationController id="main-nav" storyboardIdentifier="MainNav" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="Todo" tag="0" id="main-tab-item"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="nav-bar">
                         <rect key="frame" x="0.0" y="0.0" width="390" height="96"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -132,6 +133,99 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="weblogin-fr" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="550" y="500"/>
+        </scene>
+        <scene sceneID="tab-scene">
+            <objects>
+                <tabBarController id="tab-bar" customClass="MainTabBarController" customModule="TodoApp" storyboardIdentifier="TabBar" sceneMemberID="viewController">
+                    <tabBar key="tabBar" contentMode="scaleToFill" id="tab-bar-view"/>
+                    <connections>
+                        <segue destination="main-nav" kind="relationship" relationship="viewControllers" id="tab-todo-seg"/>
+                        <segue destination="settings-nav" kind="relationship" relationship="viewControllers" id="tab-settings-seg"/>
+                    </connections>
+                </tabBarController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="tab-fr" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="0" y="900"/>
+        </scene>
+        <scene sceneID="settings-nav-scene">
+            <objects>
+                <navigationController id="settings-nav" storyboardIdentifier="SettingsNav" sceneMemberID="viewController">
+                    <tabBarItem key="tabBarItem" title="設定" tag="1" id="settings-tab-item"/>
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="settings-nav-bar">
+                        <rect key="frame" x="0.0" y="0.0" width="390" height="96"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="settings-vc" kind="relationship" relationship="rootViewController" id="settings-nav-root"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="settings-nav-fr" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="550" y="900"/>
+        </scene>
+        <scene sceneID="settings-scene">
+            <objects>
+                <viewController id="settings-vc" customClass="SettingsViewController" customModule="TodoApp" storyboardIdentifier="SettingsVC" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" title="設定" id="settings-nav-item"/>
+                    <view key="view" contentMode="scaleToFill" id="settings-view">
+                        <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <viewLayoutGuide key="safeAreaLayoutGuide" id="settings-safe"/>
+                    </view>
+                    <connections>
+                        <segue destination="settings-detail-vc" kind="show" identifier="showSettingsDetail" id="seg-settings-detail"/>
+                        <segue destination="overlay-nav" kind="present" identifier="showOverlay" modalPresentationStyle="pageSheet" id="seg-overlay"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="settings-fr" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1100" y="900"/>
+        </scene>
+        <scene sceneID="settings-detail-scene">
+            <objects>
+                <viewController id="settings-detail-vc" customClass="SettingsDetailViewController" customModule="TodoApp" storyboardIdentifier="SettingsDetailVC" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" title="設定詳細" id="settings-detail-nav"/>
+                    <view key="view" contentMode="scaleToFill" id="settings-detail-view">
+                        <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <viewLayoutGuide key="safeAreaLayoutGuide" id="settings-detail-safe"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="settings-detail-fr" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1650" y="900"/>
+        </scene>
+        <scene sceneID="overlay-nav-scene">
+            <objects>
+                <navigationController id="overlay-nav" sceneMemberID="viewController">
+                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="overlay-nav-bar">
+                        <rect key="frame" x="0.0" y="0.0" width="390" height="96"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                    </navigationBar>
+                    <connections>
+                        <segue destination="overlay-vc" kind="relationship" relationship="rootViewController" id="overlay-nav-root"/>
+                    </connections>
+                </navigationController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="overlay-nav-fr" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1100" y="1400"/>
+        </scene>
+        <scene sceneID="overlay-scene">
+            <objects>
+                <viewController id="overlay-vc" customClass="OverlayViewController" customModule="TodoApp" storyboardIdentifier="OverlayVC" sceneMemberID="viewController">
+                    <navigationItem key="navigationItem" title="オーバーレイ" id="overlay-nav-item"/>
+                    <view key="view" contentMode="scaleToFill" id="overlay-view">
+                        <rect key="frame" x="0.0" y="0.0" width="390" height="844"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <viewLayoutGuide key="safeAreaLayoutGuide" id="overlay-safe"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="overlay-fr" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1650" y="1400"/>
         </scene>
     </scenes>
 </document>

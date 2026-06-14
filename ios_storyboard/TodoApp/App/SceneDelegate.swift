@@ -25,7 +25,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func showTodoList() {
         guard let window else { return }
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let nav = storyboard.instantiateViewController(withIdentifier: "MainNav")
+        let nav = storyboard.instantiateViewController(withIdentifier: "TabBar")
         UIView.transition(with: window, duration: 0.3, options: .transitionCrossDissolve) {
             window.rootViewController = nav
         }
