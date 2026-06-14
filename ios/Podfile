@@ -1,0 +1,24 @@
+platform :ios, '16.0'
+
+# Path to the Flutter module (relative to this Podfile).
+# After running `flutter pub get` in flutter_module/, the .ios/ hidden dir
+# will contain the podhelper.rb script.
+flutter_application_path = '../flutter_module'
+load File.join(flutter_application_path, '.ios', 'Flutter', 'podhelper.rb')
+
+target 'AddToAppHost' do
+  use_frameworks!
+  use_modular_headers!
+
+  # Install all Flutter pods (Flutter.framework + plugin pods).
+  install_all_flutter_pods(flutter_application_path)
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
+    end
+  end
+end

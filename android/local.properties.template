@@ -1,0 +1,8 @@
+# Copy this file to local.properties and fill in the paths.
+# local.properties is NOT committed to version control.
+
+# Path to your Flutter SDK installation:
+flutter.sdk=/path/to/your/flutter/sdk
+
+# Path to your Android SDK:
+sdk.dir=/path/to/your/android/sdk

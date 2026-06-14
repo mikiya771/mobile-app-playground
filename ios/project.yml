@@ -1,0 +1,34 @@
+name: AddToAppHost
+options:
+  bundleIdPrefix: com.example
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+  xcodeVersion: "16"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    DEVELOPMENT_TEAM: ""
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+
+packages:
+  # Flutter module is linked via CocoaPods (see Podfile), not SPM.
+  # No SPM packages needed for this host app.
+
+targets:
+  AddToAppHost:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - Runner
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.addToAppHost
+        INFOPLIST_FILE: Runner/Info.plist
+        SWIFT_VERSION: "5.9"
+        # CocoaPods will append the Flutter framework search paths.
+        # Run `pod install` before `xcodegen generate`.
+    info:
+      path: Runner/Info.plist
